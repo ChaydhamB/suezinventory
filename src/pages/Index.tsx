@@ -78,8 +78,11 @@ import {
   Lock,
   ShoppingCart,
   Check,
+  ChevronDown,
   X,
 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -627,7 +630,7 @@ function DashboardView({ kpi, items, transactions, computeStock, purchases, setP
 /* ------------------------------------------------------------------ */
 function StockView({ items, setItems, categories, computeStock, requireAdmin, purchases, setPurchases }: any) {
   const [search, setSearch] = useState("");
-  const [catFilter, setCatFilter] = useState("all");
+  const [catFilter, setCatFilter] = useState<string[]>([]);
   const [stockFilter, setStockFilter] = useState("all");
   const [qtyMin, setQtyMin] = useState<string>("");
   const [qtyMax, setQtyMax] = useState<string>("");
@@ -640,7 +643,7 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
   const LOW = 5;
 
   const filtered = items.filter((i: Item) => {
-    if (catFilter !== "all" && i.cat !== catFilter) return false;
+    if (catFilter.length > 0 && !catFilter.includes(i.cat)) return false;
     const s = computeStock(i);
     if (stockFilter === "out" && s > 0) return false;
     if (stockFilter === "critical" && s > CRITICAL) return false;
@@ -724,13 +727,66 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <Select value={catFilter} onValueChange={setCatFilter}>
-            <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Toutes catégories</SelectItem>
-              {categories.map((c: string) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="w-56 justify-between font-normal">
+                <span className="truncate">
+                  {catFilter.length === 0
+                    ? "Toutes catégories"
+                    : catFilter.length === 1
+                    ? catFilter[0]
+                    : `${catFilter.length} catégories`}
+                </span>
+                <ChevronDown className="ml-2 h-4 w-4 opacity-50 shrink-0" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-64 p-0" align="start">
+              <div className="flex items-center justify-between border-b px-3 py-2">
+                <span className="text-xs font-medium text-muted-foreground">
+                  {catFilter.length} sélectionnée(s)
+                </span>
+                <div className="flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 px-2 text-xs"
+                    onClick={() => setCatFilter([...categories])}
+                  >
+                    Tout
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 px-2 text-xs"
+                    onClick={() => setCatFilter([])}
+                    disabled={catFilter.length === 0}
+                  >
+                    Aucun
+                  </Button>
+                </div>
+              </div>
+              <div className="max-h-64 overflow-y-auto p-1">
+                {categories.map((c: string) => {
+                  const checked = catFilter.includes(c);
+                  return (
+                    <label
+                      key={c}
+                      className="flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent"
+                    >
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(v) => {
+                          if (v) setCatFilter([...catFilter, c]);
+                          else setCatFilter(catFilter.filter((x) => x !== c));
+                        }}
+                      />
+                      <span className="truncate">{c}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
           <Select value={stockFilter} onValueChange={setStockFilter}>
             <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
             <SelectContent>
