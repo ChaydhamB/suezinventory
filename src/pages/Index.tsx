@@ -73,6 +73,9 @@ import {
   Search,
   Lock,
   ShoppingCart,
+  Check,
+  X,
+  Pencil,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
