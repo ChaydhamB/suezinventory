@@ -1492,7 +1492,7 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
               <Badge>{d}</Badge>
               <span className="text-xs text-muted-foreground">{entries.length} entrée(s)</span>
               {isPast && (
-                <span className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-500">
+                <span className="flex items-center gap-1 text-xs text-destructive">
                   <AlertTriangle className="h-3 w-3" />
                   Modifier ces lignes n'ajuste pas le stock actuel.
                 </span>
