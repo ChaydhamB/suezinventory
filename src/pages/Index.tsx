@@ -625,14 +625,19 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("all");
   const [stockFilter, setStockFilter] = useState("all");
+  const [qtyMin, setQtyMin] = useState<string>("");
+  const [qtyMax, setQtyMax] = useState<string>("");
   const [editing, setEditing] = useState<Item | null>(null);
   const [creating, setCreating] = useState(false);
 
   const filtered = items.filter((i: Item) => {
     if (catFilter !== "all" && i.cat !== catFilter) return false;
-    if (stockFilter === "out" && computeStock(i) > 0) return false;
-    if (stockFilter === "low" && (computeStock(i) <= 0 || computeStock(i) > 5)) return false;
-    if (stockFilter === "ok" && computeStock(i) <= 5) return false;
+    const s = computeStock(i);
+    if (stockFilter === "out" && s > 0) return false;
+    if (stockFilter === "low" && (s <= 0 || s > 5)) return false;
+    if (stockFilter === "ok" && s <= 5) return false;
+    if (qtyMin !== "" && s < Number(qtyMin)) return false;
+    if (qtyMax !== "" && s > Number(qtyMax)) return false;
     if (search) {
       const q = search.toLowerCase();
       if (!i.name.toLowerCase().includes(q) && !i.ref.toLowerCase().includes(q) && !i.supplier.toLowerCase().includes(q))
