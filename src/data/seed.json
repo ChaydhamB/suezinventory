@@ -1,0 +1,2046 @@
+{
+  "items": [
+    {
+      "id": "bornie1",
+      "cat": "Bornier",
+      "name": "WDU2.5 BORNIE A VIS 2.5MM",
+      "ref": "102000000",
+      "supplier": "Weidmuller",
+      "unitPrice": 0.87,
+      "stock": 1396,
+      "consSfax": 502
+    },
+    {
+      "id": "bornie2",
+      "cat": "Bornier",
+      "name": "WDU4 BORNIE A VIS 4MM",
+      "ref": "1020100000",
+      "supplier": "Weidmuller",
+      "unitPrice": 1.35,
+      "stock": 0,
+      "consSfax": 6
+    },
+    {
+      "id": "bornie3",
+      "cat": "Bornier",
+      "name": "EW35 ARRETOIR BORNIER",
+      "ref": "0383560000",
+      "supplier": "Weidmuller",
+      "unitPrice": 1.087,
+      "stock": 150,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie4",
+      "cat": "Bornier",
+      "name": "SCHT, Terminal marker SCHT 5 S V0",
+      "ref": "1762370000",
+      "supplier": "Weidmuller",
+      "unitPrice": 0.0,
+      "stock": 99,
+      "consSfax": 14
+    },
+    {
+      "id": "bornie5",
+      "cat": "Bornier",
+      "name": "WSI 6BORNIER A ETAGE A FUSIBLE 5*20 6MM",
+      "ref": "1011000000",
+      "supplier": "Weidmuller",
+      "unitPrice": 6.487,
+      "stock": 1150,
+      "consSfax": 36
+    },
+    {
+      "id": "bornie6",
+      "cat": "Bornier",
+      "name": "Bloc jonction multi etage 2,5",
+      "ref": "1021500000",
+      "supplier": "Weidmuller",
+      "unitPrice": 6.3,
+      "stock": 2950,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie7",
+      "cat": "Bornier",
+      "name": "terminal block, Screw connection, dark beige, 16 mm²",
+      "ref": "1020400000",
+      "supplier": "Weidmuller",
+      "unitPrice": 4.022,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie8",
+      "cat": "Bornier",
+      "name": "PE terminal, Screw connection, Green/yellow, 16 mm²",
+      "ref": "1010400000",
+      "supplier": "Weidmuller",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie9",
+      "cat": "Bornier",
+      "name": "WDU16 BORNIE A VIS 16MM",
+      "ref": "1020400000",
+      "supplier": "Weidmuller",
+      "unitPrice": 4.022,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie10",
+      "cat": "Bornier",
+      "name": "Bornier 6 mm",
+      "ref": "1020200000",
+      "supplier": "Weidmuller",
+      "unitPrice": 1.288,
+      "stock": 2,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie11",
+      "cat": "Bornier",
+      "name": "Bornier V/J 6mm",
+      "ref": "1010200000",
+      "supplier": "Weidmuller",
+      "unitPrice": 4.59,
+      "stock": 2,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie12",
+      "cat": "Bornier",
+      "name": "Bornier V/J 4mm",
+      "ref": "1010100000",
+      "supplier": "Weidmuller",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 3
+    },
+    {
+      "id": "bornie13",
+      "cat": "Bornier",
+      "name": "Bornier V/J 2,5mm",
+      "ref": "1010000000",
+      "supplier": "Weidmuller",
+      "unitPrice": 4.08,
+      "stock": 0,
+      "consSfax": 1
+    },
+    {
+      "id": "bornie14",
+      "cat": "Bornier",
+      "name": "WPE16 BORNIER A VIS V/J 16 MM",
+      "ref": "1019100000",
+      "supplier": "Weidmuller",
+      "unitPrice": 8.753,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie15",
+      "cat": "Bornier",
+      "name": "Plaque d’extrémité pour blocs de jonction (WAP WDK2.5)",
+      "ref": "1059100000",
+      "supplier": "Weidmuller",
+      "unitPrice": 1.2,
+      "stock": 500,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie16",
+      "cat": "Bornier",
+      "name": "End plate for terminals WAP 2.5-10",
+      "ref": "1050000000",
+      "supplier": "Weidmuller",
+      "unitPrice": 0.56,
+      "stock": 200,
+      "consSfax": 9
+    },
+    {
+      "id": "bornie17",
+      "cat": "Bornier",
+      "name": "End plate for terminals WAP 16+35 WTW 2.5-10",
+      "ref": "1050100000",
+      "supplier": "Weidmuller",
+      "unitPrice": 0.0,
+      "stock": 20,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie18",
+      "cat": "Bornier",
+      "name": "REPERE BORNIER DEK 5 FW 1-10",
+      "ref": "523060001",
+      "supplier": "Weidmuller",
+      "unitPrice": 13.6,
+      "stock": 5015,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie19",
+      "cat": "Bornier",
+      "name": "REPERE BORNIER DEK 5 FW 1-50",
+      "ref": "47346001",
+      "supplier": "Weidmuller",
+      "unitPrice": 13.6,
+      "stock": 5019,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie20",
+      "cat": "Bornier",
+      "name": "REPERE BORNIER DEK 5 FW 51-100",
+      "ref": "473460051",
+      "supplier": "Weidmuller",
+      "unitPrice": 15.3,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "bornie21",
+      "cat": "Bornier",
+      "name": "REPERE BORNIER DEK 5 FW 101-150",
+      "ref": "473460101",
+      "supplier": "Weidmuller",
+      "unitPrice": 8.45,
+      "stock": 5,
+      "consSfax": 0
+    },
+    {
+      "id": "relais1",
+      "cat": "Relais",
+      "name": "SCM 4CO ECO",
+      "ref": "7760056264",
+      "supplier": "Weidmuller",
+      "unitPrice": 12.33,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "relais2",
+      "cat": "Relais",
+      "name": "RCM570730 RELAIS 4 CONTACT 230V",
+      "ref": "1181100000",
+      "supplier": "Weidmuller",
+      "unitPrice": 14.25,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "relais3",
+      "cat": "Relais",
+      "name": "RS 24 VUC 1CO RELAIS DE COMMUNICATION",
+      "ref": "1122770000",
+      "supplier": "Weidmuller",
+      "unitPrice": 20.0,
+      "stock": 286,
+      "consSfax": 95
+    },
+    {
+      "id": "relais4",
+      "cat": "Relais",
+      "name": "DRMKIT 230VAC 4CO LD/PB",
+      "ref": "1542540000",
+      "supplier": "Weidmuller",
+      "unitPrice": 33.25,
+      "stock": 11,
+      "consSfax": 1
+    },
+    {
+      "id": "relais5",
+      "cat": "Relais",
+      "name": "DRMKIT 24VDC 4 CO/PB",
+      "ref": "1542510000",
+      "supplier": "Weidmuller",
+      "unitPrice": 29.0,
+      "stock": 26,
+      "consSfax": 0
+    },
+    {
+      "id": "relais6",
+      "cat": "Relais",
+      "name": "DRIKIT RELAIS 8 PIN AVEC SUPPORT 24 VAC 2 CO",
+      "ref": "2476850000",
+      "supplier": "Weidmuller",
+      "unitPrice": 23.5,
+      "stock": 355,
+      "consSfax": 0
+    },
+    {
+      "id": "relais7",
+      "cat": "Relais",
+      "name": "DRMKIT 24VAC 4CO LD/PD",
+      "ref": "1542530000",
+      "supplier": "Weidmuller",
+      "unitPrice": 27.0,
+      "stock": 260,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon1",
+      "cat": "Disjoncteur + Fusible",
+      "name": "DISJONCTEUR 2P 16A C",
+      "ref": "A9F79216",
+      "supplier": "Schneider",
+      "unitPrice": 24.12,
+      "stock": 3,
+      "consSfax": 3
+    },
+    {
+      "id": "disjon2",
+      "cat": "Disjoncteur + Fusible",
+      "name": "DISJONCTEUR 2P 10A C",
+      "ref": "A9F79210",
+      "supplier": "Schneider",
+      "unitPrice": 24.12,
+      "stock": 18,
+      "consSfax": 2
+    },
+    {
+      "id": "disjon3",
+      "cat": "Disjoncteur + Fusible",
+      "name": "DISJONCTEUR 2P 32A C",
+      "ref": "A9F79232",
+      "supplier": "Schneider",
+      "unitPrice": 29.92,
+      "stock": 8,
+      "consSfax": 1
+    },
+    {
+      "id": "disjon4",
+      "cat": "Disjoncteur + Fusible",
+      "name": "DISJONCTEUR 2P 6A C",
+      "ref": "A9F79206",
+      "supplier": "Schneider",
+      "unitPrice": 24.42,
+      "stock": 10,
+      "consSfax": 1
+    },
+    {
+      "id": "disjon5",
+      "cat": "Disjoncteur + Fusible",
+      "name": "DISJONCTEUR 3P 10A C",
+      "ref": "A9F79310",
+      "supplier": "Schneider",
+      "unitPrice": 36.998,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon6",
+      "cat": "Disjoncteur + Fusible",
+      "name": "DISJONCTEUR 4P 16A C",
+      "ref": "A9F79416",
+      "supplier": "Schneider",
+      "unitPrice": 47.586,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon7",
+      "cat": "Disjoncteur + Fusible",
+      "name": "DISJONCTEUR 4P 25A C",
+      "ref": "A9F79425",
+      "supplier": "Schneider",
+      "unitPrice": 48.266,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon8",
+      "cat": "Disjoncteur + Fusible",
+      "name": "DISJONCTEUR 1P+N 10A C",
+      "ref": "A9P54610",
+      "supplier": "Schneider",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon9",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Acti9 C60H-DC - 2P - 20A - Courbe C",
+      "ref": "A9N61532",
+      "supplier": "Schneider",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon10",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Acti9 C60H-DC - 1P - 2A - Courbe C",
+      "ref": "A9N61502",
+      "supplier": "Schneider",
+      "unitPrice": 42.01,
+      "stock": 87,
+      "consSfax": 10
+    },
+    {
+      "id": "disjon11",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Acti9 C60H-DC - 2P - 10A - Courbe C",
+      "ref": "A9N61528",
+      "supplier": "Schneider",
+      "unitPrice": 87.29,
+      "stock": 1,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon12",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Acti9 iC60N - Disjoncteur - 2P - 2A - Courbe C",
+      "ref": "A9F74202",
+      "supplier": "Schneider",
+      "unitPrice": 64.5,
+      "stock": 4,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon13",
+      "cat": "Disjoncteur + Fusible",
+      "name": "iC60N – 4P – 32 A – courbe C",
+      "ref": "A9F79432",
+      "supplier": "Schneider",
+      "unitPrice": 58.809,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon14",
+      "cat": "Disjoncteur + Fusible",
+      "name": "TeSys GV2ME - disj. moteur - 0,4 à 0,63A - 3P",
+      "ref": "GV2ME04",
+      "supplier": "Schneider",
+      "unitPrice": 98.221,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon15",
+      "cat": "Disjoncteur + Fusible",
+      "name": "TeSys GV2ME - disj. moteur - 1,1 à 6A - 3P",
+      "ref": "GV2ME06",
+      "supplier": "Schneider",
+      "unitPrice": 95.537,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon16",
+      "cat": "Disjoncteur + Fusible",
+      "name": "TeSys GV2ME - disj. moteur - 2,5 à 4A - 3P",
+      "ref": "GV2ME08",
+      "supplier": "Schneider",
+      "unitPrice": 95.44,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon17",
+      "cat": "Disjoncteur + Fusible",
+      "name": "TeSys GV2ME - disj. moteur - 1,6 à 2,5A - 3P",
+      "ref": "GV2ME07",
+      "supplier": "Schneider",
+      "unitPrice": 94.205,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon18",
+      "cat": "Disjoncteur + Fusible",
+      "name": "TeSys GV2ME - disj. moteur - 4 à 6,3A - 3P",
+      "ref": "GV2ME10",
+      "supplier": "Schneider",
+      "unitPrice": 99.975,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon19",
+      "cat": "Disjoncteur + Fusible",
+      "name": "TeSys GV - contact auxiliaire - 1O+1F",
+      "ref": "GVAN11",
+      "supplier": "Schneider",
+      "unitPrice": 29.282,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon20",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Harmony RM35-T - relais de contrôle de phase",
+      "ref": "RM35TF30",
+      "supplier": "Schneider",
+      "unitPrice": 488.701,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon21",
+      "cat": "Disjoncteur + Fusible",
+      "name": "contacteur - 3P - AC-3 440V - 9A - bobine 24Vac",
+      "ref": "LC1D09B7",
+      "supplier": "Schneider",
+      "unitPrice": 55.62,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon22",
+      "cat": "Disjoncteur + Fusible",
+      "name": "contacteur - 3P - AC-3 440V - 9A - bobine 24Vcc",
+      "ref": "LC1D09BD",
+      "supplier": "Schneider",
+      "unitPrice": 131.435,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon23",
+      "cat": "Disjoncteur + Fusible",
+      "name": "BLOC ADDITIF LADN31",
+      "ref": "LADN31",
+      "supplier": "Schneider",
+      "unitPrice": 32.1,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon24",
+      "cat": "Disjoncteur + Fusible",
+      "name": "bloc contacts auxiliaires frontaux - 1F+1O",
+      "ref": "LADN11",
+      "supplier": "Schneider",
+      "unitPrice": 32.1,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon25",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Acti9 Contact Auxiliaire 1 OF - Courant 100mA à 6A ca/dc",
+      "ref": "A9A26904",
+      "supplier": "Schneider",
+      "unitPrice": 31.924,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon26",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Acti9 Contact Auxiliaire 1 SD - Courant 100mA à 6A ca/dc",
+      "ref": "A9A26907",
+      "supplier": "Schneider",
+      "unitPrice": 31.924,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon27",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Acti9, iMX+OF déclench. 100-415VCA 110-130VCC",
+      "ref": "A9A26946",
+      "supplier": "Schneider",
+      "unitPrice": 100.875,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon28",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Bloc Vigi iC60 4P, 40A, 230-415V CA, 30mA",
+      "ref": "A9Q11440",
+      "supplier": "Schneider",
+      "unitPrice": 178.252,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon29",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Bloc vigi IC60 2P 25A 300 mA",
+      "ref": "A9V44225",
+      "supplier": "Schneider",
+      "unitPrice": 110.4,
+      "stock": 6,
+      "consSfax": 2
+    },
+    {
+      "id": "disjon30",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Bloc vigi IC60 2P 25A 30 mA",
+      "ref": "A9V41225",
+      "supplier": "Schneider",
+      "unitPrice": 116.8,
+      "stock": 13,
+      "consSfax": 2
+    },
+    {
+      "id": "disjon31",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Bloc vigi IC60 3P 25A 300 mA",
+      "ref": "A9V44325",
+      "supplier": "Schneider",
+      "unitPrice": 148.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon32",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Vigirex RH99M",
+      "ref": "56173",
+      "supplier": "Schneider",
+      "unitPrice": 512.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon33",
+      "cat": "Disjoncteur + Fusible",
+      "name": "Vigirex tore 30 mm fermé",
+      "ref": "50437",
+      "supplier": "Schneider",
+      "unitPrice": 87.211,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon34",
+      "cat": "Disjoncteur + Fusible",
+      "name": "KIT INVERSEUR 3P SHNEIDER",
+      "ref": "LAD9R1",
+      "supplier": "Schneider",
+      "unitPrice": 37.44,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon35",
+      "cat": "Disjoncteur + Fusible",
+      "name": "sectionneur fusible à tiroir - 1P+N",
+      "ref": "A9N15646",
+      "supplier": "Schneider",
+      "unitPrice": 5.758,
+      "stock": 53,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon36",
+      "cat": "Disjoncteur + Fusible",
+      "name": "PORTE FUSIBLE STI 10*38",
+      "ref": "A9N15636",
+      "supplier": "Schneider",
+      "unitPrice": 8.721,
+      "stock": 33,
+      "consSfax": 6
+    },
+    {
+      "id": "disjon37",
+      "cat": "Disjoncteur + Fusible",
+      "name": "FUSible 1,5 A",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 0.562,
+      "stock": 400,
+      "consSfax": 0
+    },
+    {
+      "id": "disjon38",
+      "cat": "Disjoncteur + Fusible",
+      "name": "FUS 10*38 1---32A (2A)",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 0.562,
+      "stock": 60,
+      "consSfax": 6
+    },
+    {
+      "id": "disjon39",
+      "cat": "Disjoncteur + Fusible",
+      "name": "FUS 10*38 1---32A (4A)",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 60,
+      "consSfax": 0
+    },
+    {
+      "id": "voyant1",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "BOUTON TOIURNAT 2P SCH",
+      "ref": "4066",
+      "supplier": "Chint",
+      "unitPrice": 6.151,
+      "stock": 4,
+      "consSfax": 0
+    },
+    {
+      "id": "voyant2",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "BOUTON TOURNANT 3P",
+      "ref": "4067",
+      "supplier": "Chint",
+      "unitPrice": 7.681,
+      "stock": 100,
+      "consSfax": 0
+    },
+    {
+      "id": "voyant3",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "BOUTTON A VOYANT VERT CHINT NP2-BW3361",
+      "ref": "0109041",
+      "supplier": "Chint",
+      "unitPrice": 11.371,
+      "stock": 110,
+      "consSfax": 1
+    },
+    {
+      "id": "voyant4",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "NP2 BA61 BOUTTON POUSSOIR BLEU",
+      "ref": "0109023",
+      "supplier": "Chint",
+      "unitPrice": 6.259,
+      "stock": 4,
+      "consSfax": 0
+    },
+    {
+      "id": "voyant5",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "NP2-BA21 BOUTON POUSSOIR CHINT NOIR",
+      "ref": "4064",
+      "supplier": "Chint",
+      "unitPrice": 5.116,
+      "stock": 10,
+      "consSfax": 1
+    },
+    {
+      "id": "voyant6",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "NP2-BA42 BOUTON POUSSOIR CHINT ROUGE",
+      "ref": "4062",
+      "supplier": "Chint",
+      "unitPrice": 5.116,
+      "stock": 133,
+      "consSfax": 1
+    },
+    {
+      "id": "voyant7",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "ND16-22DS/2 12V/24V  VOYANT COULEUR VERT",
+      "ref": "0110066",
+      "supplier": "Chint",
+      "unitPrice": 2.695,
+      "stock": 7,
+      "consSfax": 1
+    },
+    {
+      "id": "voyant8",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "ND16-22DS/2 12V/24V  VOYANT COULEUR JAUNE",
+      "ref": "0110066",
+      "supplier": "Chint",
+      "unitPrice": 2.695,
+      "stock": 25,
+      "consSfax": 0
+    },
+    {
+      "id": "voyant9",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "VOYANT COULEUR BLEU 220V (ND16-22DS/4)",
+      "ref": "4300",
+      "supplier": "Chint",
+      "unitPrice": 17.395,
+      "stock": 0,
+      "consSfax": 1
+    },
+    {
+      "id": "voyant10",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "VOYANT COULEUR ROUGE 220V (ND16-22DS/4)",
+      "ref": "4300",
+      "supplier": "Chint",
+      "unitPrice": 3.195,
+      "stock": 0,
+      "consSfax": 1
+    },
+    {
+      "id": "voyant11",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "VOYANT COULEUR ROUGE 24V (ND16-22DS/4)",
+      "ref": "-",
+      "supplier": "Chint",
+      "unitPrice": 1.89,
+      "stock": 10,
+      "consSfax": 0
+    },
+    {
+      "id": "voyant12",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "ND16-22DS/2 VOYANT 24VDC ORANGE",
+      "ref": "4303",
+      "supplier": "Chint",
+      "unitPrice": 0.0,
+      "stock": 8,
+      "consSfax": 0
+    },
+    {
+      "id": "voyant13",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "LAY4-BE101 CONTACT NO",
+      "ref": "01070190",
+      "supplier": "Chint",
+      "unitPrice": 1.705,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "voyant14",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "CONTACT ZBE 102",
+      "ref": "ZBE102CH",
+      "supplier": "Chint",
+      "unitPrice": 1.705,
+      "stock": 40,
+      "consSfax": 0
+    },
+    {
+      "id": "voyant15",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "Siréne 24V AC/DC",
+      "ref": "ND16-22FS 24V",
+      "supplier": "Chint",
+      "unitPrice": 0.0,
+      "stock": 3,
+      "consSfax": 1
+    },
+    {
+      "id": "voyant16",
+      "cat": "Voyant + Boutons + Selecteur + contact NO/NC",
+      "name": "Boutons arret d'urgence",
+      "ref": "XB4BS8442",
+      "supplier": "Schneider",
+      "unitPrice": 33.402,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "transf1",
+      "cat": "Transfo + Répartiteur",
+      "name": "ALIMENTATION PRO ECO 240W 24V 10A",
+      "ref": "1469490000",
+      "supplier": "Weidmuller",
+      "unitPrice": 333.0,
+      "stock": 4,
+      "consSfax": 1
+    },
+    {
+      "id": "transf2",
+      "cat": "Transfo + Répartiteur",
+      "name": "ALIMENTATION PRO BAS 480W 24V 20A",
+      "ref": "2838480000",
+      "supplier": "Weidmuller",
+      "unitPrice": 484.5,
+      "stock": 2,
+      "consSfax": 0
+    },
+    {
+      "id": "transf3",
+      "cat": "Transfo + Répartiteur",
+      "name": "TRANSFOT   300VA   KACEM",
+      "ref": "KACEM300",
+      "supplier": "-",
+      "unitPrice": 105.257,
+      "stock": 1,
+      "consSfax": 0
+    },
+    {
+      "id": "transf4",
+      "cat": "Transfo + Répartiteur",
+      "name": "Répartiteur étagé tétrapolaire - 125A - 4x12 trous",
+      "ref": "LGY412548",
+      "supplier": "Schneider",
+      "unitPrice": 66.8,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "transf5",
+      "cat": "Transfo + Répartiteur",
+      "name": "JH8215 REPARTITEUR 2*15 125A",
+      "ref": "04020003",
+      "supplier": "-",
+      "unitPrice": 16.42,
+      "stock": 2,
+      "consSfax": 0
+    },
+    {
+      "id": "transf6",
+      "cat": "Transfo + Répartiteur",
+      "name": "REPARTITEUR 2*7 JH8 207",
+      "ref": "REP207",
+      "supplier": "-",
+      "unitPrice": 8.05,
+      "stock": 6,
+      "consSfax": 3
+    },
+    {
+      "id": "timerh1",
+      "cat": "Timer + Horloge",
+      "name": "ITS 24-240VUC 1CO M7C RELAIS",
+      "ref": "2496190000",
+      "supplier": "Weidmuller",
+      "unitPrice": 105.825,
+      "stock": 1,
+      "consSfax": 0
+    },
+    {
+      "id": "timerh2",
+      "cat": "Timer + Horloge",
+      "name": "Acti9 IH - inter. horaire électroméca. - 24H",
+      "ref": "15336",
+      "supplier": "Schneider",
+      "unitPrice": 115.36,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea1",
+      "cat": "Autre article",
+      "name": "VAL-MS-EE-T2-1+1-385 - Type 2 surge arrester",
+      "ref": "2910562",
+      "supplier": "PHOENIX",
+      "unitPrice": 0.0,
+      "stock": 2,
+      "consSfax": 1
+    },
+    {
+      "id": "autrea2",
+      "cat": "Autre article",
+      "name": "Disjoncteur 20A (Pour parafoudre)",
+      "ref": "A9F79220",
+      "supplier": "Schneider",
+      "unitPrice": 0.0,
+      "stock": 4,
+      "consSfax": 1
+    },
+    {
+      "id": "autrea3",
+      "cat": "Autre article",
+      "name": "Thermostat à fermeture - Bleu - °C",
+      "ref": "DSTS01",
+      "supplier": "-",
+      "unitPrice": 12.6,
+      "stock": 4,
+      "consSfax": 1
+    },
+    {
+      "id": "autrea4",
+      "cat": "Autre article",
+      "name": "AMPERMETRE ANALOGUE 60/30/5 A",
+      "ref": "-",
+      "supplier": "Chint",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea5",
+      "cat": "Autre article",
+      "name": "AMPERMETRE ANALOGUE 40/20/5 A",
+      "ref": "-",
+      "supplier": "Chint",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea6",
+      "cat": "Autre article",
+      "name": "AMPERMETRE ANALOGUE 200/100/5 A",
+      "ref": "-",
+      "supplier": "Chint",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea7",
+      "cat": "Autre article",
+      "name": "AMPERMETRE ANALOGUE 300/150/5 A",
+      "ref": "-",
+      "supplier": "Chint",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea8",
+      "cat": "Autre article",
+      "name": "AMPERMETRE ANALOGUE 30/15/5 A",
+      "ref": "-",
+      "supplier": "Chint",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea9",
+      "cat": "Autre article",
+      "name": "AMPERMETRE ANALOGUE 20/5 A",
+      "ref": "07CH761848",
+      "supplier": "Chint",
+      "unitPrice": 19.95,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea10",
+      "cat": "Autre article",
+      "name": "AMPERMETRE ANALOGUE 100/5 A",
+      "ref": "0113027",
+      "supplier": "Chint",
+      "unitPrice": 19.95,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea11",
+      "cat": "Autre article",
+      "name": "YBLXW-5/11 G3 MICRO SWITCH",
+      "ref": "4397",
+      "supplier": "-",
+      "unitPrice": 8.835,
+      "stock": 7,
+      "consSfax": 2
+    },
+    {
+      "id": "autrea12",
+      "cat": "Autre article",
+      "name": "ISOLATEUR SM-35",
+      "ref": "SM-35",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 18,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea13",
+      "cat": "Autre article",
+      "name": "BARRIR LED 6W T5 AVEC INTERRIPTEUR 6500 K",
+      "ref": "YBA-104",
+      "supplier": "-",
+      "unitPrice": 11.25,
+      "stock": 3,
+      "consSfax": 2
+    },
+    {
+      "id": "autrea14",
+      "cat": "Autre article",
+      "name": "Ventilateur +Filtre",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 166.002,
+      "stock": 2,
+      "consSfax": 1
+    },
+    {
+      "id": "autrea15",
+      "cat": "Autre article",
+      "name": "Barre de terre",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 10,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea16",
+      "cat": "Autre article",
+      "name": "Support module diode",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 2,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea17",
+      "cat": "Autre article",
+      "name": "Module a diode anode commun",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 100.0,
+      "stock": 1,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea18",
+      "cat": "Autre article",
+      "name": "Prise de courant 2P+T 16A",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 10,
+      "consSfax": 1
+    },
+    {
+      "id": "autrea19",
+      "cat": "Autre article",
+      "name": "Prise de courant industrielle 3P+N+T 16A",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 12.512,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea20",
+      "cat": "Autre article",
+      "name": "Prise de courant industrielle 2P+T 16A",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 10.752,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "autrea21",
+      "cat": "Autre article",
+      "name": "Onduleur 1000VA",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 215.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils1",
+      "cat": "Fils",
+      "name": "FIL SOUPLE ISOLEE 1MM ROUGE",
+      "ref": "SV1",
+      "supplier": "-",
+      "unitPrice": 0.38,
+      "stock": 42,
+      "consSfax": 0
+    },
+    {
+      "id": "fils2",
+      "cat": "Fils",
+      "name": "FIL SOUPLE ISOLEE 1MM NOIR",
+      "ref": "SV1",
+      "supplier": "-",
+      "unitPrice": 0.38,
+      "stock": 6,
+      "consSfax": 0
+    },
+    {
+      "id": "fils3",
+      "cat": "Fils",
+      "name": "FIL SOUPLE ISOLEE 1MM BLEU",
+      "ref": "SV1",
+      "supplier": "-",
+      "unitPrice": 0.38,
+      "stock": 31,
+      "consSfax": 0
+    },
+    {
+      "id": "fils4",
+      "cat": "Fils",
+      "name": "FIL SOUPLE ISOLEE 1MM MARRON",
+      "ref": "SV1",
+      "supplier": "-",
+      "unitPrice": 0.38,
+      "stock": 3,
+      "consSfax": 0
+    },
+    {
+      "id": "fils5",
+      "cat": "Fils",
+      "name": "FIL SOUPLE ISOLEE  0,75 rouge",
+      "ref": "SV",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils6",
+      "cat": "Fils",
+      "name": "FIL SOUPLE ISOLEE 0,75 noir",
+      "ref": "SV",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 3,
+      "consSfax": 0
+    },
+    {
+      "id": "fils7",
+      "cat": "Fils",
+      "name": "FIL ISOLE SOUPLE H07V-K 1.5MM² MARRON",
+      "ref": "SV1.5",
+      "supplier": "-",
+      "unitPrice": 0.58,
+      "stock": 1,
+      "consSfax": 0
+    },
+    {
+      "id": "fils8",
+      "cat": "Fils",
+      "name": "FIL ISOLE SOUPLE H07V-K 1.5MM² BLEU",
+      "ref": "SV1.5",
+      "supplier": "-",
+      "unitPrice": 0.58,
+      "stock": 2,
+      "consSfax": 0
+    },
+    {
+      "id": "fils9",
+      "cat": "Fils",
+      "name": "FIL ISOLE SOUPLE H07V-K 1.5MM² noir",
+      "ref": "SV1.5",
+      "supplier": "-",
+      "unitPrice": 0.58,
+      "stock": 1,
+      "consSfax": 0
+    },
+    {
+      "id": "fils10",
+      "cat": "Fils",
+      "name": "FIL ISOLE SOUPLE H07V-K 1.5MM² Rouge",
+      "ref": "SV1.5",
+      "supplier": "-",
+      "unitPrice": 0.58,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils11",
+      "cat": "Fils",
+      "name": "FIL ISOLE SOUPLE HO7V-K 2.5 BLEU",
+      "ref": "SV2.5",
+      "supplier": "-",
+      "unitPrice": 0.92,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils12",
+      "cat": "Fils",
+      "name": "FIL ISOLE SOUPLE HO7V-K 2.5 MARRON",
+      "ref": "SV2.5",
+      "supplier": "-",
+      "unitPrice": 0.92,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils13",
+      "cat": "Fils",
+      "name": "FIL ISOLE SOUPLE HO7V-K 2.5 ROUGE",
+      "ref": "SV2.5",
+      "supplier": "-",
+      "unitPrice": 0.92,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils14",
+      "cat": "Fils",
+      "name": "FIL ISOLE SOUPLE HO7V-K 2.5 Noir",
+      "ref": "SV2.5",
+      "supplier": "-",
+      "unitPrice": 0.92,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils15",
+      "cat": "Fils",
+      "name": "FIL SOUPLE ISOLEE 1MM violet",
+      "ref": "SV1",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils16",
+      "cat": "Fils",
+      "name": "FIL SOUPLE ISOLEE 1MM BLANC",
+      "ref": "SV1",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils17",
+      "cat": "Fils",
+      "name": "Fil Vert/jaune ISOLE SOUPLE 1,5MM",
+      "ref": "SV1,5",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils18",
+      "cat": "Fils",
+      "name": "Fil Vert/jaune ISOLE SOUPLE H07V-K 2,5",
+      "ref": "SV2.5",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 100,
+      "consSfax": 0
+    },
+    {
+      "id": "fils19",
+      "cat": "Fils",
+      "name": "FIL VERT/JAUNE  ISOLE SOUPLE H07V-K 4",
+      "ref": "SV4",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils20",
+      "cat": "Fils",
+      "name": "FIL ROUGE  ISOLE SOUPLE H07V-K 4",
+      "ref": "SV4",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils21",
+      "cat": "Fils",
+      "name": "FIL NOIR  ISOLE SOUPLE H07V-K 4",
+      "ref": "SV4",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils22",
+      "cat": "Fils",
+      "name": "FIL MARRON ISOLE SOUPLE H07V-K 6",
+      "ref": "SV4",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 100,
+      "consSfax": 0
+    },
+    {
+      "id": "fils23",
+      "cat": "Fils",
+      "name": "FIL NOIR ISOLE SOUPLE H07V-K 6",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils24",
+      "cat": "Fils",
+      "name": "FIL ROUGE ISOLE SOUPLE H07V-K 6",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "fils25",
+      "cat": "Fils",
+      "name": "FIL BLEU  ISOLE SOUPLE H07V-K 6",
+      "ref": "SV4",
+      "supplier": "-",
+      "unitPrice": 0.0,
+      "stock": 100,
+      "consSfax": 0
+    },
+    {
+      "id": "embout1",
+      "cat": "Embout",
+      "name": "EMBOUT 1MM²",
+      "ref": "E1",
+      "supplier": "-",
+      "unitPrice": 1.22,
+      "stock": 38,
+      "consSfax": 0
+    },
+    {
+      "id": "embout2",
+      "cat": "Embout",
+      "name": "EMBOUT 1 DOUBLE 1008",
+      "ref": "E1D",
+      "supplier": "-",
+      "unitPrice": 2.96,
+      "stock": 38,
+      "consSfax": 0
+    },
+    {
+      "id": "embout3",
+      "cat": "Embout",
+      "name": "EMBOUT 0,75 MM²",
+      "ref": "E7508",
+      "supplier": "-",
+      "unitPrice": 1.22,
+      "stock": 40,
+      "consSfax": 0
+    },
+    {
+      "id": "embout4",
+      "cat": "Embout",
+      "name": "EMBOUT DOUBLE 0,75 MM²",
+      "ref": "TE7510",
+      "supplier": "-",
+      "unitPrice": 3.36,
+      "stock": 40,
+      "consSfax": 0
+    },
+    {
+      "id": "embout5",
+      "cat": "Embout",
+      "name": "EMBOUT 1.5 DOUBLE 1508",
+      "ref": "E1.5D",
+      "supplier": "-",
+      "unitPrice": 4.824,
+      "stock": 6,
+      "consSfax": 0
+    },
+    {
+      "id": "embout6",
+      "cat": "Embout",
+      "name": "EMBOUT 1.5 MM",
+      "ref": "E1.5",
+      "supplier": "-",
+      "unitPrice": 1.96,
+      "stock": 6,
+      "consSfax": 0
+    },
+    {
+      "id": "embout7",
+      "cat": "Embout",
+      "name": "EMBOUT 2.5MM",
+      "ref": "E2.5",
+      "supplier": "-",
+      "unitPrice": 2.546,
+      "stock": 6,
+      "consSfax": 0
+    },
+    {
+      "id": "embout8",
+      "cat": "Embout",
+      "name": "EMBOUT DOUBLE  2.5MM",
+      "ref": "E2.5 D",
+      "supplier": "-",
+      "unitPrice": 6.506,
+      "stock": 6,
+      "consSfax": 0
+    },
+    {
+      "id": "embout9",
+      "cat": "Embout",
+      "name": "EMBOUT 4MM²",
+      "ref": "E4",
+      "supplier": "-",
+      "unitPrice": 4.13,
+      "stock": 1,
+      "consSfax": 0
+    },
+    {
+      "id": "goulot1",
+      "cat": "Goulotte + Rail",
+      "name": "GOULOTTE 100*60 KLEMSEN",
+      "ref": "G100*60",
+      "supplier": "-",
+      "unitPrice": 21.724,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "goulot2",
+      "cat": "Goulotte + Rail",
+      "name": "GOULOTE 80*60  KLEMSEN",
+      "ref": "4306060",
+      "supplier": "-",
+      "unitPrice": 20.613,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "goulot3",
+      "cat": "Goulotte + Rail",
+      "name": "GOULOTTE 60*60 KLEMSEN",
+      "ref": "SPG60*60",
+      "supplier": "-",
+      "unitPrice": 12.515,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "goulot4",
+      "cat": "Goulotte + Rail",
+      "name": "GOULOTTE 40*40 KLEMSEN",
+      "ref": "ER4040G",
+      "supplier": "-",
+      "unitPrice": 7.745,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "goulot5",
+      "cat": "Goulotte + Rail",
+      "name": "GOULOTTE 25*25",
+      "ref": "AKI014",
+      "supplier": "-",
+      "unitPrice": 4.757,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "goulot6",
+      "cat": "Goulotte + Rail",
+      "name": "GOULOTTE 40*60 KLEMSEN",
+      "ref": "-",
+      "supplier": "-",
+      "unitPrice": 9.681,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "goulot7",
+      "cat": "Goulotte + Rail",
+      "name": "RAIL OMEGA 2M KLEMSEN",
+      "ref": "R2M",
+      "supplier": "-",
+      "unitPrice": 12.624,
+      "stock": 0,
+      "consSfax": 0
+    },
+    {
+      "id": "plcsch1",
+      "cat": "PLC Schneider",
+      "name": "Managed Switch - 4 ports for copper + 2 ports for fiber optic multimode",
+      "ref": "MCSESM063F2CU0",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 5,
+      "consSfax": 0
+    },
+    {
+      "id": "plcsch2",
+      "cat": "PLC Schneider",
+      "name": "Managed Switch - 8 ports for copper + 2 ports for fiber optic multimode",
+      "ref": "MCSESM103F2CU0",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 10,
+      "consSfax": 2
+    },
+    {
+      "id": "plcsch3",
+      "cat": "PLC Schneider",
+      "name": "Remote IO drop",
+      "ref": "BMECRD0100",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 9,
+      "consSfax": 1
+    },
+    {
+      "id": "plcsch4",
+      "cat": "PLC Schneider",
+      "name": "X80 Analog Input Module, High Speed, 8 channels, isolated",
+      "ref": "BMXAMI0810",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 0,
+      "consSfax": 2
+    },
+    {
+      "id": "plcsch5",
+      "cat": "PLC Schneider",
+      "name": "X80 Analog Output Module, 8 channels, non isolated",
+      "ref": "BMXAMO0802",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 8,
+      "consSfax": 0
+    },
+    {
+      "id": "plcsch6",
+      "cat": "PLC Schneider",
+      "name": "X80 Digital Input Module, 64 channels, 24 V DC, Positive (sink)",
+      "ref": "BMXDDI6402K",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 13,
+      "consSfax": 4
+    },
+    {
+      "id": "plcsch7",
+      "cat": "PLC Schneider",
+      "name": "X80 Digital Output Module, 64 channels, 24 V DC, Positive",
+      "ref": "BMXDDO6402K",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 17,
+      "consSfax": 1
+    },
+    {
+      "id": "plcsch8",
+      "cat": "PLC Schneider",
+      "name": "3 m pre-equipped cable with 1 connector and 2 free wires",
+      "ref": "BMXFCW303",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 60,
+      "consSfax": 10
+    },
+    {
+      "id": "plcsch9",
+      "cat": "PLC Schneider",
+      "name": "20-pin removable caged terminal blocks -1 x 0.34..1 mm2",
+      "ref": "BMXFTB2000",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 1,
+      "consSfax": 0
+    },
+    {
+      "id": "plcsch10",
+      "cat": "PLC Schneider",
+      "name": "20-way removable terminal block with screw clamp",
+      "ref": "BMXFTB2010",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 7,
+      "consSfax": 0
+    },
+    {
+      "id": "plcsch11",
+      "cat": "PLC Schneider",
+      "name": "28-way removable terminal block with cage clamp type",
+      "ref": "BMXFTB2800",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 0,
+      "consSfax": 2
+    },
+    {
+      "id": "plcsch12",
+      "cat": "PLC Schneider",
+      "name": "X80 Backplane Expander Kit for 2-rack configuration",
+      "ref": "BMXXBE2005",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 4,
+      "consSfax": 0
+    },
+    {
+      "id": "plcsch13",
+      "cat": "PLC Schneider",
+      "name": "Modicon X80 - module d'alimentation - 24..48Vcc - 31,2W",
+      "ref": "BMXCPS3020",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 13,
+      "consSfax": 1
+    },
+    {
+      "id": "plcsch14",
+      "cat": "PLC Schneider",
+      "name": "Modicon X80 - rack pour M340 - 12 bus X - IP20",
+      "ref": "BMXXBP1200",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 13,
+      "consSfax": 1
+    },
+    {
+      "id": "plcsch15",
+      "cat": "PLC Schneider",
+      "name": "protective cover - for unoccupied slots on rack",
+      "ref": "BMXXEM010",
+      "supplier": "Schneider",
+      "unitPrice": 0,
+      "stock": 151,
+      "consSfax": 4
+    }
+  ],
+  "history": [
+    {
+      "date": "2026-04-14",
+      "desig": "Porte étiquette",
+      "ref": "1762370000",
+      "qty": "1 paquet"
+    },
+    {
+      "date": "2026-04-14",
+      "desig": "Embout rouge double",
+      "ref": "TE1008",
+      "qty": "10 paquets"
+    },
+    {
+      "date": "2026-04-14",
+      "desig": "Embout bleu double",
+      "ref": "TE7508",
+      "qty": "10 paquets"
+    },
+    {
+      "date": "2026-04-14",
+      "desig": "Embout rouge simple",
+      "ref": "E1008",
+      "qty": "10 paquets"
+    },
+    {
+      "date": "2026-04-14",
+      "desig": "Embout bleu simple",
+      "ref": "E7508",
+      "qty": "10 paquets"
+    },
+    {
+      "date": "2026-04-14",
+      "desig": "Embout gris simple",
+      "ref": "E2508",
+      "qty": "4 paquets"
+    },
+    {
+      "date": "2026-04-14",
+      "desig": "Serre-câble 100 x 2.5 mm",
+      "ref": "",
+      "qty": "200"
+    },
+    {
+      "date": "2026-04-14",
+      "desig": "Fil noir 0.75 mm²",
+      "ref": "SV",
+      "qty": "200"
+    },
+    {
+      "date": "2026-04-14",
+      "desig": "Cosses jaune 5 pour 6",
+      "ref": "COS RV5.5-6",
+      "qty": "100"
+    },
+    {
+      "date": "2026-04-14",
+      "desig": "Bornier simple 2.5 mm (WDU2.5 BORNIER À VIS)",
+      "ref": "102000000",
+      "qty": "100"
+    },
+    {
+      "date": "2026-04-14",
+      "desig": "Bornier fusible 2.5 mm (Bloc jonction multi-étage 2.5)",
+      "ref": "1021500000",
+      "qty": "50"
+    },
+    {
+      "date": "2026-04-15",
+      "desig": "Meche 4mm",
+      "ref": "",
+      "qty": "3"
+    },
+    {
+      "date": "2026-04-15",
+      "desig": "Meche 5mm",
+      "ref": "",
+      "qty": "3"
+    },
+    {
+      "date": "2026-04-15",
+      "desig": "Meche 6mm",
+      "ref": "",
+      "qty": "3"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "End plate for terminals WAP 2.5-10",
+      "ref": "1050000000",
+      "qty": "1 paquet"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "JH8215 REPARTITEUR 2*15 125A",
+      "ref": "04020003",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "REPARTITEUR 2*7 JH8 207",
+      "ref": "REP207",
+      "qty": "2"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "DISJONCTEUR 2A",
+      "ref": "A9N61502",
+      "qty": "7"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "RELAIS 24 VUC",
+      "ref": "1122770000",
+      "qty": "64"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "ALIMENTATION PRO ECO 240W 24V 10A",
+      "ref": "1469490000",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "DISJONCTEUR 20A",
+      "ref": "A9F79220",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "SURGE ARRESTER",
+      "ref": "2910562",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "DRMKIT 230VAC 4CO LD/PB",
+      "ref": "1542540000",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "PORTE FUSIBLE STI 10*38",
+      "ref": "A9N15636",
+      "qty": "6"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "DISJONCTEUR 2P 6A C",
+      "ref": "A9F79206",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "DISJONCTEUR 2P 32A C",
+      "ref": "A9F79232",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "DISJONCTEUR 2P 16A C",
+      "ref": "A9F79216",
+      "qty": "2"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "Bloc vigi IC60 2P 25A 30 mA",
+      "ref": "A9V41225",
+      "qty": "3"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "Bloc vigi IC60 2P 25A 300 mA",
+      "ref": "A9V44225",
+      "qty": "2"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "DISJONCTEUR 2P 10A C",
+      "ref": "A9F79210",
+      "qty": "4"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "WDU2.5 BORNIE A VIS 2.5MM",
+      "ref": "102000000",
+      "qty": "204"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "WDU4 BORNIE A VIS 4MM",
+      "ref": "1020100000",
+      "qty": "4"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "Bornier V/J 4mm",
+      "ref": "1010100000",
+      "qty": "2"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "Bornier V/J 2,5mm",
+      "ref": "1010000000",
+      "qty": "3"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "Siréne 24V AC/DC",
+      "ref": "ND16-22FS 24V",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "VOYANT COULEUR ROUGE 220V (ND16-22DS/4)",
+      "ref": "4300",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "VOYANT COULEUR BLEU 220V (ND16-22DS/4)",
+      "ref": "4300",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "VOYANT COULEUR VERT 220V (ND16-22DS/4)",
+      "ref": "4300",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "Prise de courant 2P+T 16A",
+      "ref": "",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-16",
+      "desig": "NP2 BA61 BOUTTON POUSSOIR ROUGE",
+      "ref": "4062",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "WDU2.5 BORNIE A VIS 2.5MM",
+      "ref": "102000000",
+      "qty": "100"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "WDU4 BORNIE A VIS 4MM",
+      "ref": "1020100000",
+      "qty": "7"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "REPERE BORNIER DEK 5 FW 51-100",
+      "ref": "473460051",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "Bornier V/J 4mm",
+      "ref": "1010100000",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "Bornier V/J 2,5mm",
+      "ref": "1010000000",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "PORTE FUSIBLE STI 10*38",
+      "ref": "A9N15636",
+      "qty": "6"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "DRMKIT 230VAC 4CO LD/PB",
+      "ref": "1542540000",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "VOYANT COULEUR ROUGE 220V (ND16-22DS/4)",
+      "ref": "4300",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "DISJONCTEUR 2P 32A C",
+      "ref": "A9F79232",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "SURGE ARRESTER",
+      "ref": "2910562",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "Bloc vigi IC60 2P 25A 30 mA",
+      "ref": "A9V41225",
+      "qty": "4"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "DISJONCTEUR 20A",
+      "ref": "A9F79220",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "REPARTITEUR 2*7 JH8 207",
+      "ref": "REP207",
+      "qty": "2"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "JH8215 REPARTITEUR 2*15 125A",
+      "ref": "04020003",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "Bloc vigi IC60 2P 25A 300 mA",
+      "ref": "A9V44225",
+      "qty": "2"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "DISJONCTEUR 2P 10A C",
+      "ref": "A9F79210",
+      "qty": "4"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "ALIMENTATION PRO ECO 240W 24V 10A",
+      "ref": "1469490000",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "DISJONCTEUR 2P 6A C",
+      "ref": "A9F79206",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "VOYANT COULEUR VERT 220V (ND16-22DS/4)",
+      "ref": "4300",
+      "qty": "1"
+    },
+    {
+      "date": "2026-04-17",
+      "desig": "DISJONCTEUR 2A",
+      "ref": "A9N61502",
+      "qty": "6"
+    }
+  ]
+}
