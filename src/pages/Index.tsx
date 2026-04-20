@@ -770,32 +770,76 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
         </div>
       </CardHeader>
       <CardContent>
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-muted-foreground">Alertes :</span>
+          <button
+            type="button"
+            onClick={() => setStockFilter("out")}
+            className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 bg-destructive/10 px-2.5 py-1 font-medium text-destructive transition hover:bg-destructive/20"
+          >
+            <span className="h-2 w-2 rounded-full bg-destructive" /> Épuisé : {stats.out}
+          </button>
+          <button
+            type="button"
+            onClick={() => setStockFilter("critical")}
+            className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 bg-destructive/5 px-2.5 py-1 font-medium text-destructive transition hover:bg-destructive/15"
+          >
+            <span className="h-2 w-2 rounded-full bg-destructive/70" /> Critique (≤{CRITICAL}) : {stats.crit}
+          </button>
+          <button
+            type="button"
+            onClick={() => setStockFilter("low")}
+            className="inline-flex items-center gap-1.5 rounded-full border border-secondary bg-secondary/50 px-2.5 py-1 font-medium text-secondary-foreground transition hover:bg-secondary"
+          >
+            <span className="h-2 w-2 rounded-full bg-muted-foreground" /> Faible (≤{LOW}) : {stats.low}
+          </button>
+          {stockFilter !== "all" && (
+            <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => setStockFilter("all")}>
+              <X className="mr-1 h-3 w-3" /> Tout afficher
+            </Button>
+          )}
+        </div>
         <div className="overflow-x-auto rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Catégorie</TableHead>
-                <TableHead>Désignation</TableHead>
+                <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("cat")}>
+                  Catégorie<SortIcon k="cat" />
+                </TableHead>
+                <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("name")}>
+                  Désignation<SortIcon k="name" />
+                </TableHead>
                 <TableHead>Référence</TableHead>
                 <TableHead>Fournisseur</TableHead>
-                <TableHead className="text-right">Prix unit.</TableHead>
-                <TableHead className="text-right">Stock</TableHead>
-                <TableHead className="text-right">Valeur</TableHead>
+                <TableHead className="cursor-pointer select-none text-right" onClick={() => toggleSort("price")}>
+                  Prix unit.<SortIcon k="price" />
+                </TableHead>
+                <TableHead className="cursor-pointer select-none text-right" onClick={() => toggleSort("stock")}>
+                  Stock<SortIcon k="stock" />
+                </TableHead>
+                <TableHead className="cursor-pointer select-none text-right" onClick={() => toggleSort("value")}>
+                  Valeur<SortIcon k="value" />
+                </TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((i: Item) => {
+              {sorted.map((i: Item) => {
                 const s = computeStock(i);
+                const rowTone =
+                  s <= 0 ? "bg-destructive/10 hover:bg-destructive/15"
+                  : s <= CRITICAL ? "bg-destructive/5 hover:bg-destructive/10"
+                  : s <= LOW ? "bg-secondary/40 hover:bg-secondary/60"
+                  : "";
                 return (
-                  <TableRow key={i.id}>
+                  <TableRow key={i.id} className={rowTone}>
                     <TableCell><Badge variant="outline">{i.cat}</Badge></TableCell>
                     <TableCell className="font-medium">{i.name}</TableCell>
                     <TableCell className="text-xs">{i.ref}</TableCell>
                     <TableCell className="text-xs">{i.supplier}</TableCell>
                     <TableCell className="text-right text-sm">{fmtPrice(i.unitPrice)}</TableCell>
                     <TableCell className="text-right">
-                      <Badge variant={s <= 0 ? "destructive" : s <= 5 ? "secondary" : "default"}>{s}</Badge>
+                      <Badge variant={s <= CRITICAL ? "destructive" : s <= LOW ? "secondary" : "default"}>{s}</Badge>
                     </TableCell>
                     <TableCell className="text-right text-sm">{fmtPrice(s * i.unitPrice)}</TableCell>
                     <TableCell className="text-right">
@@ -827,7 +871,7 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
                   </TableRow>
                 );
               })}
-              {filtered.length === 0 && (
+              {sorted.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
                     Aucun article trouvé.
