@@ -1455,3 +1455,110 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
     </Card>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/*  Purchase List                                                      */
+/* ------------------------------------------------------------------ */
+function PurchaseView({ items, purchases, setPurchases }: any) {
+  const rows = purchases
+    .map((p: PurchaseEntry) => ({ p, item: items.find((i: Item) => i.id === p.itemId) }))
+    .filter((r: any) => r.item);
+
+  const totalCost = rows.reduce((s: number, r: any) => s + r.p.qty * r.item.unitPrice, 0);
+
+  const updateQty = (id: string, qty: number) => {
+    if (qty < 1) return;
+    setPurchases(purchases.map((p: PurchaseEntry) => (p.id === id ? { ...p, qty } : p)));
+  };
+  const updateNote = (id: string, note: string) => {
+    setPurchases(purchases.map((p: PurchaseEntry) => (p.id === id ? { ...p, note } : p)));
+  };
+  const remove = (id: string) => {
+    setPurchases(purchases.filter((p: PurchaseEntry) => p.id !== id));
+    toast.success("Retiré de la liste d'achat.");
+  };
+  const clearAll = () => {
+    if (rows.length === 0) return;
+    if (!confirm("Vider toute la liste d'achat ?")) return;
+    setPurchases([]);
+    toast.success("Liste d'achat vidée.");
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <CardTitle>Pour achat</CardTitle>
+          <CardDescription>
+            {rows.length} article(s) à acheter · Total estimé : {fmtPrice(totalCost)}
+          </CardDescription>
+        </div>
+        <Button variant="outline" size="sm" onClick={clearAll} disabled={rows.length === 0}>
+          <Trash2 className="mr-1.5 h-4 w-4" /> Vider la liste
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Catégorie</TableHead>
+                <TableHead>Désignation</TableHead>
+                <TableHead>Référence</TableHead>
+                <TableHead>Fournisseur</TableHead>
+                <TableHead className="text-right">Prix unit.</TableHead>
+                <TableHead className="w-32 text-center">Quantité</TableHead>
+                <TableHead className="text-right">Coût total</TableHead>
+                <TableHead>Note</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map(({ p, item }: any) => (
+                <TableRow key={p.id}>
+                  <TableCell><Badge variant="outline">{item.cat}</Badge></TableCell>
+                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <TableCell className="text-xs">{item.ref}</TableCell>
+                  <TableCell className="text-xs">{item.supplier}</TableCell>
+                  <TableCell className="text-right text-sm">{fmtPrice(item.unitPrice)}</TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      min={1}
+                      className="h-8 w-20 text-center"
+                      value={p.qty}
+                      onChange={(e) => updateQty(p.id, parseInt(e.target.value) || 1)}
+                    />
+                  </TableCell>
+                  <TableCell className="text-right text-sm font-medium">
+                    {fmtPrice(p.qty * item.unitPrice)}
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      className="h-8"
+                      placeholder="Note…"
+                      value={p.note ?? ""}
+                      onChange={(e) => updateNote(p.id, e.target.value)}
+                    />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button size="icon" variant="ghost" onClick={() => remove(p.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {rows.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={9} className="py-10 text-center text-muted-foreground">
+                    Aucun article. Cliquez sur l'icône panier dans le Stock pour ajouter.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
