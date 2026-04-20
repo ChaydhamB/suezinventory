@@ -75,7 +75,6 @@ import {
   ShoppingCart,
   Check,
   X,
-  Pencil,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
