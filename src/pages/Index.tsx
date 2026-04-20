@@ -829,7 +829,7 @@ function IncomingView({ items, transactions, setTransactions, categories, comput
 /* ------------------------------------------------------------------ */
 /*  Outgoing                                                           */
 /* ------------------------------------------------------------------ */
-function OutgoingView({ items, transactions, setTransactions, armoires, categories, computeStock }: any) {
+function OutgoingView({ items, transactions, setTransactions, armoires, categories, computeStock, history, setHistory }: any) {
   const [itemId, setItemId] = useState("");
   const [armoireId, setArmoireId] = useState(armoires[0]?.id ?? "");
   const [qty, setQty] = useState("");
@@ -861,12 +861,21 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
       toast.error(`Stock insuffisant. Disponible: ${stockNow}`);
       return;
     }
-    const tx: Transaction = { id: uid(), type: "out", itemId, armoireId, qty: Number(qty), note, date };
+    const txId = uid();
+    const tx: Transaction = { id: txId, type: "out", itemId, armoireId, qty: Number(qty), note, date };
     setTransactions([...transactions, tx]);
     const it = items.find((i: Item) => i.id === itemId);
     const arm = armoires.find((a: Armoire) => a.id === armoireId);
+    setHistory([...history, { date, desig: `[SORTIE → ${arm?.name ?? "?"}] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `-${qty}`, txId, type: "out" }]);
     toast.success(`-${qty} × "${it?.name}" → "${arm?.name}".`);
     setItemId(""); setQty(""); setNote(""); setDate(todayISO());
+  };
+
+  const removeTx = (txId: string) => {
+    if (!confirm("Supprimer cette sortie ? Le stock sera restauré.")) return;
+    setTransactions(transactions.filter((t: Transaction) => t.id !== txId));
+    setHistory(history.filter((h: HistoryEntry) => h.txId !== txId));
+    toast.success("Sortie supprimée.");
   };
 
   const recent = [...transactions].filter((t: Transaction) => t.type === "out").slice(-10).reverse();
