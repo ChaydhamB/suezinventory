@@ -345,6 +345,8 @@ export default function Index() {
               setTransactions={setTransactions}
               categories={allCategories}
               computeStock={computeStock}
+              history={history}
+              setHistory={setHistory}
             />
           </TabsContent>
 
@@ -356,6 +358,8 @@ export default function Index() {
               armoires={armoires}
               categories={allCategories}
               computeStock={computeStock}
+              history={history}
+              setHistory={setHistory}
             />
           </TabsContent>
 
