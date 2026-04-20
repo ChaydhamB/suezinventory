@@ -702,9 +702,9 @@ function IncomingView({ items, transactions, setTransactions, categories, comput
     }
     const txId = uid();
     const tx: Transaction = { id: txId, type: "in", itemId, qty: Number(qty), note, date };
-    setTransactions([...transactions, tx]);
     const it = items.find((i: Item) => i.id === itemId);
-    setHistory([...history, { date, desig: `[ENTRÉE] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `+${qty}`, txId, type: "in" }]);
+    setTransactions((prev: Transaction[]) => [...prev, tx]);
+    setHistory((prev: HistoryEntry[]) => [...prev, { date, desig: `[ENTRÉE] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `+${qty}`, txId, type: "in" }]);
     toast.success(`+${qty} × "${it?.name}" ajouté(s).`);
     setItemId(""); setQty(""); setNote(""); setDate(todayISO());
   };
