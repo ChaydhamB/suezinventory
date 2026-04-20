@@ -968,6 +968,7 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
                   <TableHead>Article</TableHead>
                   <TableHead className="text-right">Qté</TableHead>
                   <TableHead>Armoire</TableHead>
+                  <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -980,6 +981,11 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
                       <TableCell className="text-sm">{it?.name ?? "?"}</TableCell>
                       <TableCell className="text-right font-medium text-destructive">-{t.qty}</TableCell>
                       <TableCell className="text-xs">{arm?.name ?? "?"}</TableCell>
+                      <TableCell>
+                        <Button size="icon" variant="ghost" onClick={() => removeTx(t.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
