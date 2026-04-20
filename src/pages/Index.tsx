@@ -630,15 +630,21 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
   const [stockFilter, setStockFilter] = useState("all");
   const [qtyMin, setQtyMin] = useState<string>("");
   const [qtyMax, setQtyMax] = useState<string>("");
+  const [sortBy, setSortBy] = useState<"stock" | "name" | "cat" | "value" | "price">("stock");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [editing, setEditing] = useState<Item | null>(null);
   const [creating, setCreating] = useState(false);
+
+  const CRITICAL = 3;
+  const LOW = 5;
 
   const filtered = items.filter((i: Item) => {
     if (catFilter !== "all" && i.cat !== catFilter) return false;
     const s = computeStock(i);
     if (stockFilter === "out" && s > 0) return false;
-    if (stockFilter === "low" && (s <= 0 || s > 5)) return false;
-    if (stockFilter === "ok" && s <= 5) return false;
+    if (stockFilter === "critical" && s > CRITICAL) return false;
+    if (stockFilter === "low" && (s <= 0 || s > LOW)) return false;
+    if (stockFilter === "ok" && s <= LOW) return false;
     if (qtyMin !== "" && s < Number(qtyMin)) return false;
     if (qtyMax !== "" && s > Number(qtyMax)) return false;
     if (search) {
@@ -648,6 +654,36 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
     }
     return true;
   });
+
+  const sorted = [...filtered].sort((a: Item, b: Item) => {
+    const dir = sortDir === "asc" ? 1 : -1;
+    const sa = computeStock(a);
+    const sb = computeStock(b);
+    switch (sortBy) {
+      case "stock": return (sa - sb) * dir;
+      case "name": return a.name.localeCompare(b.name) * dir;
+      case "cat": return a.cat.localeCompare(b.cat) * dir;
+      case "price": return (a.unitPrice - b.unitPrice) * dir;
+      case "value": return (sa * a.unitPrice - sb * b.unitPrice) * dir;
+      default: return 0;
+    }
+  });
+
+  const toggleSort = (key: typeof sortBy) => {
+    if (sortBy === key) setSortDir(sortDir === "asc" ? "desc" : "asc");
+    else { setSortBy(key); setSortDir("asc"); }
+  };
+  const SortIcon = ({ k }: { k: typeof sortBy }) =>
+    sortBy !== k ? <ArrowUpDown className="ml-1 inline h-3 w-3 opacity-40" />
+      : sortDir === "asc" ? <ArrowUp className="ml-1 inline h-3 w-3" />
+      : <ArrowDown className="ml-1 inline h-3 w-3" />;
+
+  const stats = useMemo(() => {
+    const out = items.filter((i: Item) => computeStock(i) <= 0).length;
+    const crit = items.filter((i: Item) => { const s = computeStock(i); return s > 0 && s <= CRITICAL; }).length;
+    const low = items.filter((i: Item) => { const s = computeStock(i); return s > CRITICAL && s <= LOW; }).length;
+    return { out, crit, low };
+  }, [items, computeStock]);
 
   const onCreate = (data: Item) =>
     requireAdmin(() => {
