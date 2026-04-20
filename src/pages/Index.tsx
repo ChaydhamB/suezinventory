@@ -225,11 +225,32 @@ export default function Index() {
 
   // Load
   useEffect(() => {
-    setItems(loadItems());
-    setTransactions(loadTransactions());
-    setArmoires(loadArmoires());
+    const loadedItems = loadItems();
+    const loadedTx = loadTransactions();
+    const loadedArm = loadArmoires();
+    const loadedHist = loadHistory();
+    setItems(loadedItems);
+    setTransactions(loadedTx);
+    setArmoires(loadedArm);
     setCustomCats(loadCustomCats());
-    setHistory(loadHistory());
+
+    // Backfill: ensure every transaction has a matching history entry
+    const existingTxIds = new Set(loadedHist.filter((h) => h.txId).map((h) => h.txId));
+    const missing: HistoryEntry[] = [];
+    loadedTx.forEach((t) => {
+      if (existingTxIds.has(t.id)) return;
+      const it = loadedItems.find((i) => i.id === t.itemId);
+      const arm = loadedArm.find((a) => a.id === t.armoireId);
+      missing.push({
+        date: t.date,
+        desig: t.type === "in" ? `[ENTRÉE] ${it?.name ?? "?"}` : `[SORTIE → ${arm?.name ?? "?"}] ${it?.name ?? "?"}`,
+        ref: it?.ref ?? "",
+        qty: t.type === "in" ? `+${t.qty}` : `-${t.qty}`,
+        txId: t.id,
+        type: t.type,
+      });
+    });
+    setHistory(missing.length ? [...loadedHist, ...missing] : loadedHist);
     setLoaded(true);
   }, []);
 
