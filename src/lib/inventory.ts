@@ -24,7 +24,7 @@ export type Transaction = {
 
 export type Armoire = { id: string; name: string };
 
-export type HistoryEntry = { date: string; desig: string; ref: string; qty: string; txId?: string; type?: "in" | "out" };
+export type HistoryEntry = { date: string; time?: string; desig: string; ref: string; qty: string; txId?: string; type?: "in" | "out" };
 
 export type PurchaseEntry = { id: string; itemId: string; qty: number; note?: string; date: string };
 
@@ -102,6 +102,10 @@ export function fmtPrice(n: number) {
 }
 export function todayISO() {
   return new Date().toISOString().split("T")[0];
+}
+export function nowTime() {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
 export function exportXLSX(opts: {
