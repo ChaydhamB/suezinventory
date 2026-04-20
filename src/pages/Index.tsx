@@ -680,7 +680,7 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin }: 
 /* ------------------------------------------------------------------ */
 /*  Incoming                                                           */
 /* ------------------------------------------------------------------ */
-function IncomingView({ items, transactions, setTransactions, categories, computeStock }: any) {
+function IncomingView({ items, transactions, setTransactions, categories, computeStock, history, setHistory }: any) {
   const [itemId, setItemId] = useState("");
   const [qty, setQty] = useState("");
   const [note, setNote] = useState("");
@@ -700,11 +700,20 @@ function IncomingView({ items, transactions, setTransactions, categories, comput
       toast.error("Sélectionnez un article et une quantité valide.");
       return;
     }
-    const tx: Transaction = { id: uid(), type: "in", itemId, qty: Number(qty), note, date };
+    const txId = uid();
+    const tx: Transaction = { id: txId, type: "in", itemId, qty: Number(qty), note, date };
     setTransactions([...transactions, tx]);
     const it = items.find((i: Item) => i.id === itemId);
+    setHistory([...history, { date, desig: `[ENTRÉE] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `+${qty}`, txId, type: "in" }]);
     toast.success(`+${qty} × "${it?.name}" ajouté(s).`);
     setItemId(""); setQty(""); setNote(""); setDate(todayISO());
+  };
+
+  const removeTx = (txId: string) => {
+    if (!confirm("Supprimer cette entrée ? Le stock sera restauré.")) return;
+    setTransactions(transactions.filter((t: Transaction) => t.id !== txId));
+    setHistory(history.filter((h: HistoryEntry) => h.txId !== txId));
+    toast.success("Entrée supprimée.");
   };
 
   const recent = [...transactions].filter((t: Transaction) => t.type === "in").slice(-10).reverse();
