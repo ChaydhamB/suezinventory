@@ -60,6 +60,9 @@ import {
   AlertTriangle,
   ArrowDownToLine,
   ArrowUpFromLine,
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
   Box,
   Download,
   LayoutGrid,
@@ -627,15 +630,21 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
   const [stockFilter, setStockFilter] = useState("all");
   const [qtyMin, setQtyMin] = useState<string>("");
   const [qtyMax, setQtyMax] = useState<string>("");
+  const [sortBy, setSortBy] = useState<"stock" | "name" | "cat" | "value" | "price">("stock");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [editing, setEditing] = useState<Item | null>(null);
   const [creating, setCreating] = useState(false);
+
+  const CRITICAL = 3;
+  const LOW = 5;
 
   const filtered = items.filter((i: Item) => {
     if (catFilter !== "all" && i.cat !== catFilter) return false;
     const s = computeStock(i);
     if (stockFilter === "out" && s > 0) return false;
-    if (stockFilter === "low" && (s <= 0 || s > 5)) return false;
-    if (stockFilter === "ok" && s <= 5) return false;
+    if (stockFilter === "critical" && s > CRITICAL) return false;
+    if (stockFilter === "low" && (s <= 0 || s > LOW)) return false;
+    if (stockFilter === "ok" && s <= LOW) return false;
     if (qtyMin !== "" && s < Number(qtyMin)) return false;
     if (qtyMax !== "" && s > Number(qtyMax)) return false;
     if (search) {
@@ -645,6 +654,36 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
     }
     return true;
   });
+
+  const sorted = [...filtered].sort((a: Item, b: Item) => {
+    const dir = sortDir === "asc" ? 1 : -1;
+    const sa = computeStock(a);
+    const sb = computeStock(b);
+    switch (sortBy) {
+      case "stock": return (sa - sb) * dir;
+      case "name": return a.name.localeCompare(b.name) * dir;
+      case "cat": return a.cat.localeCompare(b.cat) * dir;
+      case "price": return (a.unitPrice - b.unitPrice) * dir;
+      case "value": return (sa * a.unitPrice - sb * b.unitPrice) * dir;
+      default: return 0;
+    }
+  });
+
+  const toggleSort = (key: typeof sortBy) => {
+    if (sortBy === key) setSortDir(sortDir === "asc" ? "desc" : "asc");
+    else { setSortBy(key); setSortDir("asc"); }
+  };
+  const SortIcon = ({ k }: { k: typeof sortBy }) =>
+    sortBy !== k ? <ArrowUpDown className="ml-1 inline h-3 w-3 opacity-40" />
+      : sortDir === "asc" ? <ArrowUp className="ml-1 inline h-3 w-3" />
+      : <ArrowDown className="ml-1 inline h-3 w-3" />;
+
+  const stats = useMemo(() => {
+    const out = items.filter((i: Item) => computeStock(i) <= 0).length;
+    const crit = items.filter((i: Item) => { const s = computeStock(i); return s > 0 && s <= CRITICAL; }).length;
+    const low = items.filter((i: Item) => { const s = computeStock(i); return s > CRITICAL && s <= LOW; }).length;
+    return { out, crit, low };
+  }, [items, computeStock]);
 
   const onCreate = (data: Item) =>
     requireAdmin(() => {
@@ -692,12 +731,13 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
             </SelectContent>
           </Select>
           <Select value={stockFilter} onValueChange={setStockFilter}>
-            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tous les stocks</SelectItem>
-              <SelectItem value="ok">Stock OK (&gt;5)</SelectItem>
-              <SelectItem value="low">Stock faible (1-5)</SelectItem>
-              <SelectItem value="out">Épuisé (≤0)</SelectItem>
+              <SelectItem value="out">🔴 Épuisé (≤0)</SelectItem>
+              <SelectItem value="critical">🟠 Critique (1-{CRITICAL})</SelectItem>
+              <SelectItem value="low">🟡 Faible ({CRITICAL + 1}-{LOW})</SelectItem>
+              <SelectItem value="ok">🟢 OK (&gt;{LOW})</SelectItem>
             </SelectContent>
           </Select>
           <div className="flex items-center gap-1">
@@ -730,32 +770,76 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
         </div>
       </CardHeader>
       <CardContent>
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-muted-foreground">Alertes :</span>
+          <button
+            type="button"
+            onClick={() => setStockFilter("out")}
+            className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 bg-destructive/10 px-2.5 py-1 font-medium text-destructive transition hover:bg-destructive/20"
+          >
+            <span className="h-2 w-2 rounded-full bg-destructive" /> Épuisé : {stats.out}
+          </button>
+          <button
+            type="button"
+            onClick={() => setStockFilter("critical")}
+            className="inline-flex items-center gap-1.5 rounded-full border border-destructive/30 bg-destructive/5 px-2.5 py-1 font-medium text-destructive transition hover:bg-destructive/15"
+          >
+            <span className="h-2 w-2 rounded-full bg-destructive/70" /> Critique (≤{CRITICAL}) : {stats.crit}
+          </button>
+          <button
+            type="button"
+            onClick={() => setStockFilter("low")}
+            className="inline-flex items-center gap-1.5 rounded-full border border-secondary bg-secondary/50 px-2.5 py-1 font-medium text-secondary-foreground transition hover:bg-secondary"
+          >
+            <span className="h-2 w-2 rounded-full bg-muted-foreground" /> Faible (≤{LOW}) : {stats.low}
+          </button>
+          {stockFilter !== "all" && (
+            <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => setStockFilter("all")}>
+              <X className="mr-1 h-3 w-3" /> Tout afficher
+            </Button>
+          )}
+        </div>
         <div className="overflow-x-auto rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Catégorie</TableHead>
-                <TableHead>Désignation</TableHead>
+                <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("cat")}>
+                  Catégorie<SortIcon k="cat" />
+                </TableHead>
+                <TableHead className="cursor-pointer select-none" onClick={() => toggleSort("name")}>
+                  Désignation<SortIcon k="name" />
+                </TableHead>
                 <TableHead>Référence</TableHead>
                 <TableHead>Fournisseur</TableHead>
-                <TableHead className="text-right">Prix unit.</TableHead>
-                <TableHead className="text-right">Stock</TableHead>
-                <TableHead className="text-right">Valeur</TableHead>
+                <TableHead className="cursor-pointer select-none text-right" onClick={() => toggleSort("price")}>
+                  Prix unit.<SortIcon k="price" />
+                </TableHead>
+                <TableHead className="cursor-pointer select-none text-right" onClick={() => toggleSort("stock")}>
+                  Stock<SortIcon k="stock" />
+                </TableHead>
+                <TableHead className="cursor-pointer select-none text-right" onClick={() => toggleSort("value")}>
+                  Valeur<SortIcon k="value" />
+                </TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((i: Item) => {
+              {sorted.map((i: Item) => {
                 const s = computeStock(i);
+                const rowTone =
+                  s <= 0 ? "bg-destructive/10 hover:bg-destructive/15"
+                  : s <= CRITICAL ? "bg-destructive/5 hover:bg-destructive/10"
+                  : s <= LOW ? "bg-secondary/40 hover:bg-secondary/60"
+                  : "";
                 return (
-                  <TableRow key={i.id}>
+                  <TableRow key={i.id} className={rowTone}>
                     <TableCell><Badge variant="outline">{i.cat}</Badge></TableCell>
                     <TableCell className="font-medium">{i.name}</TableCell>
                     <TableCell className="text-xs">{i.ref}</TableCell>
                     <TableCell className="text-xs">{i.supplier}</TableCell>
                     <TableCell className="text-right text-sm">{fmtPrice(i.unitPrice)}</TableCell>
                     <TableCell className="text-right">
-                      <Badge variant={s <= 0 ? "destructive" : s <= 5 ? "secondary" : "default"}>{s}</Badge>
+                      <Badge variant={s <= CRITICAL ? "destructive" : s <= LOW ? "secondary" : "default"}>{s}</Badge>
                     </TableCell>
                     <TableCell className="text-right text-sm">{fmtPrice(s * i.unitPrice)}</TableCell>
                     <TableCell className="text-right">
@@ -787,7 +871,7 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
                   </TableRow>
                 );
               })}
-              {filtered.length === 0 && (
+              {sorted.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
                     Aucun article trouvé.
