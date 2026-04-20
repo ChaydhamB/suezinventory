@@ -899,6 +899,22 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
     toast.success("Sortie supprimée.");
   };
 
+  const changeArmoire = (txId: string, newArmoireId: string) => {
+    const tx = transactions.find((t: Transaction) => t.id === txId);
+    if (!tx) return;
+    const it = items.find((i: Item) => i.id === tx.itemId);
+    const newArm = armoires.find((a: Armoire) => a.id === newArmoireId);
+    setTransactions(transactions.map((t: Transaction) =>
+      t.id === txId ? { ...t, armoireId: newArmoireId } : t
+    ));
+    setHistory(history.map((h: HistoryEntry) =>
+      h.txId === txId
+        ? { ...h, desig: `[SORTIE → ${newArm?.name ?? "?"}] ${it?.name ?? "?"}` }
+        : h
+    ));
+    toast.success(`Sortie déplacée vers "${newArm?.name}".`);
+  };
+
   const recent = [...transactions].filter((t: Transaction) => t.type === "out").slice(-10).reverse();
 
   return (
@@ -1001,7 +1017,16 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
                       <TableCell className="text-xs">{t.date}</TableCell>
                       <TableCell className="text-sm">{it?.name ?? "?"}</TableCell>
                       <TableCell className="text-right font-medium text-destructive">-{t.qty}</TableCell>
-                      <TableCell className="text-xs">{arm?.name ?? "?"}</TableCell>
+                      <TableCell className="text-xs">
+                        <Select value={t.armoireId ?? ""} onValueChange={(v) => changeArmoire(t.id, v)}>
+                          <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {armoires.map((a: Armoire) => (
+                              <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
                       <TableCell>
                         <Button size="icon" variant="ghost" onClick={() => removeTx(t.id)}>
                           <Trash2 className="h-4 w-4 text-destructive" />
