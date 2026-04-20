@@ -225,6 +225,7 @@ export default function Index() {
   const [armoires, setArmoires] = useState<Armoire[]>([]);
   const [customCats, setCustomCats] = useState<string[]>([]);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [purchases, setPurchases] = useState<PurchaseEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const { require: requireAdmin, Modal: AdminModal } = useAdminGate();
 
@@ -238,6 +239,7 @@ export default function Index() {
     setTransactions(loadedTx);
     setArmoires(loadedArm);
     setCustomCats(loadCustomCats());
+    setPurchases(loadPurchases());
 
     // Backfill: ensure every transaction has a matching history entry
     const existingTxIds = new Set(loadedHist.filter((h) => h.txId).map((h) => h.txId));
@@ -265,6 +267,7 @@ export default function Index() {
   useEffect(() => { if (loaded) saveArmoires(armoires); }, [armoires, loaded]);
   useEffect(() => { if (loaded) saveCustomCats(customCats); }, [customCats, loaded]);
   useEffect(() => { if (loaded) saveHistory(history); }, [history, loaded]);
+  useEffect(() => { if (loaded) savePurchases(purchases); }, [purchases, loaded]);
 
   const allCategories = useMemo(() => {
     const fromItems = Array.from(new Set(items.map((i) => i.cat)));
