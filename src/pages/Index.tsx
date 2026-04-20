@@ -69,6 +69,7 @@ import {
   History as HistoryIcon,
   Search,
   Lock,
+  ShoppingCart,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
