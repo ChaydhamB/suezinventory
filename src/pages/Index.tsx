@@ -700,6 +700,30 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
               <SelectItem value="out">Épuisé (≤0)</SelectItem>
             </SelectContent>
           </Select>
+          <div className="flex items-center gap-1">
+            <Input
+              type="number"
+              min={0}
+              placeholder="Qté min"
+              value={qtyMin}
+              onChange={(e) => setQtyMin(e.target.value)}
+              className="w-24"
+            />
+            <span className="text-xs text-muted-foreground">–</span>
+            <Input
+              type="number"
+              min={0}
+              placeholder="Qté max"
+              value={qtyMax}
+              onChange={(e) => setQtyMax(e.target.value)}
+              className="w-24"
+            />
+            {(qtyMin !== "" || qtyMax !== "") && (
+              <Button size="icon" variant="ghost" onClick={() => { setQtyMin(""); setQtyMax(""); }} title="Réinitialiser">
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
           <Button onClick={() => setCreating(true)}>
             <Plus className="mr-1.5 h-4 w-4" /> Nouvel article
           </Button>
