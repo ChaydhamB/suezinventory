@@ -225,11 +225,32 @@ export default function Index() {
 
   // Load
   useEffect(() => {
-    setItems(loadItems());
-    setTransactions(loadTransactions());
-    setArmoires(loadArmoires());
+    const loadedItems = loadItems();
+    const loadedTx = loadTransactions();
+    const loadedArm = loadArmoires();
+    const loadedHist = loadHistory();
+    setItems(loadedItems);
+    setTransactions(loadedTx);
+    setArmoires(loadedArm);
     setCustomCats(loadCustomCats());
-    setHistory(loadHistory());
+
+    // Backfill: ensure every transaction has a matching history entry
+    const existingTxIds = new Set(loadedHist.filter((h) => h.txId).map((h) => h.txId));
+    const missing: HistoryEntry[] = [];
+    loadedTx.forEach((t) => {
+      if (existingTxIds.has(t.id)) return;
+      const it = loadedItems.find((i) => i.id === t.itemId);
+      const arm = loadedArm.find((a) => a.id === t.armoireId);
+      missing.push({
+        date: t.date,
+        desig: t.type === "in" ? `[ENTRÉE] ${it?.name ?? "?"}` : `[SORTIE → ${arm?.name ?? "?"}] ${it?.name ?? "?"}`,
+        ref: it?.ref ?? "",
+        qty: t.type === "in" ? `+${t.qty}` : `-${t.qty}`,
+        txId: t.id,
+        type: t.type,
+      });
+    });
+    setHistory(missing.length ? [...loadedHist, ...missing] : loadedHist);
     setLoaded(true);
   }, []);
 
@@ -702,9 +723,9 @@ function IncomingView({ items, transactions, setTransactions, categories, comput
     }
     const txId = uid();
     const tx: Transaction = { id: txId, type: "in", itemId, qty: Number(qty), note, date };
-    setTransactions([...transactions, tx]);
     const it = items.find((i: Item) => i.id === itemId);
-    setHistory([...history, { date, desig: `[ENTRÉE] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `+${qty}`, txId, type: "in" }]);
+    setTransactions((prev: Transaction[]) => [...prev, tx]);
+    setHistory((prev: HistoryEntry[]) => [...prev, { date, desig: `[ENTRÉE] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `+${qty}`, txId, type: "in" }]);
     toast.success(`+${qty} × "${it?.name}" ajouté(s).`);
     setItemId(""); setQty(""); setNote(""); setDate(todayISO());
   };
@@ -863,10 +884,10 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
     }
     const txId = uid();
     const tx: Transaction = { id: txId, type: "out", itemId, armoireId, qty: Number(qty), note, date };
-    setTransactions([...transactions, tx]);
     const it = items.find((i: Item) => i.id === itemId);
     const arm = armoires.find((a: Armoire) => a.id === armoireId);
-    setHistory([...history, { date, desig: `[SORTIE → ${arm?.name ?? "?"}] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `-${qty}`, txId, type: "out" }]);
+    setTransactions((prev: Transaction[]) => [...prev, tx]);
+    setHistory((prev: HistoryEntry[]) => [...prev, { date, desig: `[SORTIE → ${arm?.name ?? "?"}] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `-${qty}`, txId, type: "out" }]);
     toast.success(`-${qty} × "${it?.name}" → "${arm?.name}".`);
     setItemId(""); setQty(""); setNote(""); setDate(todayISO());
   };
