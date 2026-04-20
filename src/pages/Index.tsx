@@ -863,10 +863,10 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
     }
     const txId = uid();
     const tx: Transaction = { id: txId, type: "out", itemId, armoireId, qty: Number(qty), note, date };
-    setTransactions([...transactions, tx]);
     const it = items.find((i: Item) => i.id === itemId);
     const arm = armoires.find((a: Armoire) => a.id === armoireId);
-    setHistory([...history, { date, desig: `[SORTIE → ${arm?.name ?? "?"}] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `-${qty}`, txId, type: "out" }]);
+    setTransactions((prev: Transaction[]) => [...prev, tx]);
+    setHistory((prev: HistoryEntry[]) => [...prev, { date, desig: `[SORTIE → ${arm?.name ?? "?"}] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `-${qty}`, txId, type: "out" }]);
     toast.success(`-${qty} × "${it?.name}" → "${arm?.name}".`);
     setItemId(""); setQty(""); setNote(""); setDate(todayISO());
   };
