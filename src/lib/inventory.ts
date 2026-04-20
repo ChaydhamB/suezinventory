@@ -26,12 +26,15 @@ export type Armoire = { id: string; name: string };
 
 export type HistoryEntry = { date: string; desig: string; ref: string; qty: string; txId?: string; type?: "in" | "out" };
 
+export type PurchaseEntry = { id: string; itemId: string; qty: number; note?: string; date: string };
+
 const LS = {
   items: "atelier.items",
   tx: "atelier.tx",
   armoires: "atelier.armoires",
   cats: "atelier.cats",
   history: "atelier.history",
+  purchases: "atelier.purchases",
 };
 
 export const ADMIN_PASSWORD = "atelier2024";
@@ -74,6 +77,13 @@ export function loadHistory(): HistoryEntry[] {
 }
 export function saveHistory(h: HistoryEntry[]) {
   localStorage.setItem(LS.history, JSON.stringify(h));
+}
+export function loadPurchases(): PurchaseEntry[] {
+  const raw = localStorage.getItem(LS.purchases);
+  return raw ? JSON.parse(raw) : [];
+}
+export function savePurchases(p: PurchaseEntry[]) {
+  localStorage.setItem(LS.purchases, JSON.stringify(p));
 }
 
 export function resetAll() {
