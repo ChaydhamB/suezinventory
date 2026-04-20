@@ -502,7 +502,8 @@ function DashboardView({ kpi, items, transactions, computeStock, purchases, setP
     toast.success(`"${i.name}" ajouté pour achat.`);
   };
   const recent = [...transactions].slice(-10).reverse();
-  const low = items.filter((i: Item) => computeStock(i) <= 5).slice(0, 12);
+  const [lowThreshold, setLowThreshold] = useState(5);
+  const low = items.filter((i: Item) => computeStock(i) <= lowThreshold).slice(0, 12);
 
   return (
     <div className="space-y-4">
@@ -556,9 +557,24 @@ function DashboardView({ kpi, items, transactions, computeStock, purchases, setP
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <AlertTriangle className="h-4 w-4 text-destructive" /> Stock faible
-            </CardTitle>
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <AlertTriangle className="h-4 w-4 text-destructive" /> Stock faible
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="low-threshold" className="text-xs text-muted-foreground whitespace-nowrap">
+                  Seuil ≤
+                </Label>
+                <Input
+                  id="low-threshold"
+                  type="number"
+                  min={0}
+                  value={lowThreshold}
+                  onChange={(e) => setLowThreshold(Math.max(0, Number(e.target.value) || 0))}
+                  className="h-8 w-20"
+                />
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             {low.length === 0 ? (
