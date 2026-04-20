@@ -7,6 +7,7 @@ import {
   Transaction,
   computeStock as computeStockUtil,
   exportXLSX,
+  updateExistingXLSX,
   fmtPrice,
   loadArmoires,
   loadCustomCats,
@@ -287,6 +288,22 @@ export default function Index() {
     toast.success("Export Excel généré.");
   };
 
+  const handleUpdateTemplate = async (file: File) => {
+    try {
+      await updateExistingXLSX({
+        file,
+        items,
+        transactions,
+        armoires,
+        history,
+        computeStockFn: computeStock,
+      });
+      toast.success("Fichier Excel mis à jour téléchargé.");
+    } catch (e: any) {
+      toast.error("Échec de la mise à jour: " + (e?.message ?? "erreur inconnue"));
+    }
+  };
+
   const handleReset = () => {
     requireAdmin(() => {
       resetAll();
@@ -325,6 +342,24 @@ export default function Index() {
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" /> Export Excel
+            </Button>
+            <input
+              id="update-xlsx-input"
+              type="file"
+              accept=".xlsx"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleUpdateTemplate(f);
+                e.target.value = "";
+              }}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => document.getElementById("update-xlsx-input")?.click()}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" /> Mettre à jour Excel
             </Button>
             <Button variant="outline" size="sm" onClick={handleReset}>
               <RefreshCw className="mr-2 h-4 w-4" /> Réinitialiser

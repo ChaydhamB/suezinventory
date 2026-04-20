@@ -167,3 +167,146 @@ export function exportXLSX(opts: {
   const stamp = new Date().toISOString().split("T")[0];
   XLSX.writeFile(wb, `Atelier_Stock_${stamp}.xlsx`);
 }
+
+/* ------------------------------------------------------------------ */
+/*  Update an existing template (Mise_a_jour_atelier.xlsx layout)      */
+/*  - Keeps original sheet structure & formatting                      */
+/*  - Updates stock col (L), armoire consumption cols (P+)             */
+/*  - Appends new history sections (cols A-D) per date                 */
+/* ------------------------------------------------------------------ */
+const normRef = (v: unknown) =>
+  String(v ?? "").trim().toLowerCase().replace(/\s+/g, "");
+
+export async function updateExistingXLSX(opts: {
+  file: File;
+  items: Item[];
+  transactions: Transaction[];
+  armoires: Armoire[];
+  history: HistoryEntry[];
+  computeStockFn: (item: Item) => number;
+}) {
+  const { file, items, transactions, armoires, history, computeStockFn } = opts;
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type: "array", cellStyles: true, cellFormula: true, cellDates: true });
+
+  const sheetName = wb.SheetNames[0];
+  const ws = wb.Sheets[sheetName];
+  const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
+
+  // 1) Build a ref → item lookup
+  const refToItem = new Map<string, Item>();
+  items.forEach((it) => {
+    const k = normRef(it.ref);
+    if (k && k !== "-") refToItem.set(k, it);
+  });
+
+  // 2) Walk the Stock area (col I = ref, col L = stock qty, starts row 4)
+  //    Update col L with current computed stock.
+  for (let r = 3; r <= range.e.r; r++) {
+    const refCell = ws[XLSX.utils.encode_cell({ r, c: 8 })]; // col I
+    if (!refCell || refCell.v == null) continue;
+    const it = refToItem.get(normRef(refCell.v));
+    if (!it) continue;
+    const stock = computeStockFn(it);
+    const addr = XLSX.utils.encode_cell({ r, c: 11 }); // col L
+    ws[addr] = { t: "n", v: stock };
+  }
+
+  // 3) Armoire columns: header row index 2 (row 3 in Excel) starting col 15 (P)
+  //    For each armoire header found, fill consumption per item row.
+  const armoireColMap = new Map<string, number>(); // armoireName -> col index
+  for (let c = 15; c <= range.e.c; c++) {
+    const cell = ws[XLSX.utils.encode_cell({ r: 2, c })];
+    if (cell && cell.v) armoireColMap.set(String(cell.v).trim(), c);
+  }
+
+  // Pre-compute consumption: armoireName -> itemId -> qty
+  const consMap = new Map<string, Map<string, number>>();
+  armoires.forEach((a) => consMap.set(a.name, new Map()));
+  transactions.filter((t) => t.type === "out" && t.armoireId).forEach((t) => {
+    const arm = armoires.find((a) => a.id === t.armoireId);
+    if (!arm) return;
+    const m = consMap.get(arm.name)!;
+    m.set(t.itemId, (m.get(t.itemId) || 0) + t.qty);
+  });
+
+  // Add missing armoire columns to the right
+  let nextCol = Math.max(range.e.c + 1, 15);
+  armoires.forEach((a) => {
+    if (!armoireColMap.has(a.name)) {
+      armoireColMap.set(a.name, nextCol);
+      ws[XLSX.utils.encode_cell({ r: 2, c: nextCol })] = { t: "s", v: a.name };
+      nextCol++;
+    }
+  });
+
+  // Fill consumption values aligned to stock rows
+  for (let r = 3; r <= range.e.r; r++) {
+    const refCell = ws[XLSX.utils.encode_cell({ r, c: 8 })];
+    if (!refCell || refCell.v == null) continue;
+    const it = refToItem.get(normRef(refCell.v));
+    if (!it) continue;
+    armoires.forEach((a) => {
+      const col = armoireColMap.get(a.name)!;
+      const qty = consMap.get(a.name)?.get(it.id) ?? 0;
+      const addr = XLSX.utils.encode_cell({ r, c: col });
+      ws[addr] = qty > 0 ? { t: "n", v: qty } : { t: "s", v: "" };
+    });
+  }
+
+  // 4) History append (cols A-D). Find last used row in col A.
+  let lastHistRow = 0;
+  for (let r = 0; r <= range.e.r; r++) {
+    const cell = ws[XLSX.utils.encode_cell({ r, c: 0 })];
+    if (cell && cell.v != null && String(cell.v).trim() !== "") lastHistRow = r;
+  }
+
+  // Existing dates already present in the template (col A as date or string)
+  const existingDates = new Set<string>();
+  for (let r = 0; r <= lastHistRow; r++) {
+    const cell = ws[XLSX.utils.encode_cell({ r, c: 0 })];
+    if (!cell) continue;
+    const v = cell.v;
+    if (v instanceof Date) existingDates.add(v.toISOString().split("T")[0]);
+    else if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v)) existingDates.add(v.slice(0, 10));
+  }
+
+  // Group new history by date, skip dates already present
+  const grouped = new Map<string, HistoryEntry[]>();
+  history.forEach((h) => {
+    if (existingDates.has(h.date)) return;
+    if (!grouped.has(h.date)) grouped.set(h.date, []);
+    grouped.get(h.date)!.push(h);
+  });
+
+  let writeRow = lastHistRow + 2;
+  Array.from(grouped.entries())
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .forEach(([date, entries]) => {
+      ws[XLSX.utils.encode_cell({ r: writeRow, c: 0 })] = { t: "d", v: new Date(date) };
+      writeRow++;
+      ["N°", "Désignation", "Référence", "Quantité"].forEach((h, i) => {
+        ws[XLSX.utils.encode_cell({ r: writeRow, c: i })] = { t: "s", v: h };
+      });
+      writeRow++;
+      entries.forEach((e, idx) => {
+        ws[XLSX.utils.encode_cell({ r: writeRow, c: 0 })] = { t: "n", v: idx + 1 };
+        ws[XLSX.utils.encode_cell({ r: writeRow, c: 1 })] = { t: "s", v: e.desig };
+        ws[XLSX.utils.encode_cell({ r: writeRow, c: 2 })] = { t: "s", v: e.ref || "" };
+        ws[XLSX.utils.encode_cell({ r: writeRow, c: 3 })] = { t: "s", v: String(e.qty) };
+        writeRow++;
+      });
+      writeRow++; // blank line between dates
+    });
+
+  // Update sheet range to encompass new content
+  const newRange = {
+    s: { r: 0, c: 0 },
+    e: { r: Math.max(range.e.r, writeRow), c: Math.max(range.e.c, nextCol) },
+  };
+  ws["!ref"] = XLSX.utils.encode_range(newRange);
+
+  const stamp = new Date().toISOString().split("T")[0];
+  const baseName = file.name.replace(/\.xlsx$/i, "");
+  XLSX.writeFile(wb, `${baseName}_maj_${stamp}.xlsx`);
+}
