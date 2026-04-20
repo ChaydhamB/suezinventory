@@ -7,6 +7,7 @@ import {
   Transaction,
   computeStock as computeStockUtil,
   exportXLSX,
+  updateExistingXLSX,
   fmtPrice,
   loadArmoires,
   loadCustomCats,
