@@ -24,6 +24,7 @@ import {
   savePurchases,
   saveTransactions,
   todayISO,
+  nowTime,
 } from "@/lib/inventory";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -940,7 +941,7 @@ function IncomingView({ items, transactions, setTransactions, categories, comput
     const tx: Transaction = { id: txId, type: "in", itemId, qty: Number(qty), note, date };
     const it = items.find((i: Item) => i.id === itemId);
     setTransactions((prev: Transaction[]) => [...prev, tx]);
-    setHistory((prev: HistoryEntry[]) => [...prev, { date, desig: `[ENTRÉE] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `+${qty}`, txId, type: "in" }]);
+    setHistory((prev: HistoryEntry[]) => [...prev, { date, time: nowTime(), desig: `[ENTRÉE] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `+${qty}`, txId, type: "in" }]);
     toast.success(`+${qty} × "${it?.name}" ajouté(s).`);
     setItemId(""); setQty(""); setNote(""); setDate(todayISO());
   };
@@ -1102,7 +1103,7 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
     const it = items.find((i: Item) => i.id === itemId);
     const arm = armoires.find((a: Armoire) => a.id === armoireId);
     setTransactions((prev: Transaction[]) => [...prev, tx]);
-    setHistory((prev: HistoryEntry[]) => [...prev, { date, desig: `[SORTIE → ${arm?.name ?? "?"}] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `-${qty}`, txId, type: "out" }]);
+    setHistory((prev: HistoryEntry[]) => [...prev, { date, time: nowTime(), desig: `[SORTIE → ${arm?.name ?? "?"}] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `-${qty}`, txId, type: "out" }]);
     toast.success(`-${qty} × "${it?.name}" → "${arm?.name}".`);
     setItemId(""); setQty(""); setNote(""); setDate(todayISO());
   };
