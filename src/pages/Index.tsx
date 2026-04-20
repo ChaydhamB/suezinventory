@@ -4,6 +4,7 @@ import {
   Armoire,
   HistoryEntry,
   Item,
+  PurchaseEntry,
   Transaction,
   computeStock as computeStockUtil,
   exportXLSX,
@@ -13,12 +14,14 @@ import {
   loadCustomCats,
   loadHistory,
   loadItems,
+  loadPurchases,
   loadTransactions,
   resetAll,
   saveArmoires,
   saveCustomCats,
   saveHistory,
   saveItems,
+  savePurchases,
   saveTransactions,
   todayISO,
 } from "@/lib/inventory";
@@ -69,6 +72,7 @@ import {
   History as HistoryIcon,
   Search,
   Lock,
+  ShoppingCart,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -221,6 +225,7 @@ export default function Index() {
   const [armoires, setArmoires] = useState<Armoire[]>([]);
   const [customCats, setCustomCats] = useState<string[]>([]);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [purchases, setPurchases] = useState<PurchaseEntry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const { require: requireAdmin, Modal: AdminModal } = useAdminGate();
 
@@ -234,6 +239,7 @@ export default function Index() {
     setTransactions(loadedTx);
     setArmoires(loadedArm);
     setCustomCats(loadCustomCats());
+    setPurchases(loadPurchases());
 
     // Backfill: ensure every transaction has a matching history entry
     const existingTxIds = new Set(loadedHist.filter((h) => h.txId).map((h) => h.txId));
@@ -261,6 +267,7 @@ export default function Index() {
   useEffect(() => { if (loaded) saveArmoires(armoires); }, [armoires, loaded]);
   useEffect(() => { if (loaded) saveCustomCats(customCats); }, [customCats, loaded]);
   useEffect(() => { if (loaded) saveHistory(history); }, [history, loaded]);
+  useEffect(() => { if (loaded) savePurchases(purchases); }, [purchases, loaded]);
 
   const allCategories = useMemo(() => {
     const fromItems = Array.from(new Set(items.map((i) => i.cat)));
@@ -370,11 +377,12 @@ export default function Index() {
 
       <main className="container py-6">
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-7">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-8">
             <TabsTrigger value="dashboard"><LayoutGrid className="mr-1.5 h-4 w-4" />Tableau</TabsTrigger>
             <TabsTrigger value="stock"><Package className="mr-1.5 h-4 w-4" />Stock</TabsTrigger>
             <TabsTrigger value="in"><ArrowDownToLine className="mr-1.5 h-4 w-4" />Entrées</TabsTrigger>
             <TabsTrigger value="out"><ArrowUpFromLine className="mr-1.5 h-4 w-4" />Sorties</TabsTrigger>
+            <TabsTrigger value="purchase"><ShoppingCart className="mr-1.5 h-4 w-4" />Pour achat</TabsTrigger>
             <TabsTrigger value="armoires"><Box className="mr-1.5 h-4 w-4" />Armoires</TabsTrigger>
             <TabsTrigger value="cats"><LayoutGrid className="mr-1.5 h-4 w-4" />Catégories</TabsTrigger>
             <TabsTrigger value="history"><HistoryIcon className="mr-1.5 h-4 w-4" />Historique</TabsTrigger>
@@ -391,6 +399,16 @@ export default function Index() {
               categories={allCategories}
               computeStock={computeStock}
               requireAdmin={requireAdmin}
+              purchases={purchases}
+              setPurchases={setPurchases}
+            />
+          </TabsContent>
+
+          <TabsContent value="purchase">
+            <PurchaseView
+              items={items}
+              purchases={purchases}
+              setPurchases={setPurchases}
             />
           </TabsContent>
 
@@ -570,7 +588,7 @@ function DashboardView({ kpi, items, transactions, computeStock }: any) {
 /* ------------------------------------------------------------------ */
 /*  Stock view: full CRUD                                              */
 /* ------------------------------------------------------------------ */
-function StockView({ items, setItems, categories, computeStock, requireAdmin }: any) {
+function StockView({ items, setItems, categories, computeStock, requireAdmin, purchases, setPurchases }: any) {
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("all");
   const [stockFilter, setStockFilter] = useState("all");
@@ -680,6 +698,22 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin }: 
                     <TableCell className="text-right text-sm">{fmtPrice(s * i.unitPrice)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          title="Ajouter pour achat"
+                          onClick={() => {
+                            const existing = purchases.find((p: PurchaseEntry) => p.itemId === i.id);
+                            if (existing) {
+                              setPurchases(purchases.map((p: PurchaseEntry) => p.id === existing.id ? { ...p, qty: p.qty + 1 } : p));
+                            } else {
+                              setPurchases([...purchases, { id: uid(), itemId: i.id, qty: 1, date: todayISO() }]);
+                            }
+                            toast.success(`"${i.name}" ajouté pour achat.`);
+                          }}
+                        >
+                          <ShoppingCart className="h-4 w-4 text-primary" />
+                        </Button>
                         <Button size="icon" variant="ghost" onClick={() => setEditing(i)}>
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -1417,6 +1451,113 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
             </div>
           </div>
         ))}
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Purchase List                                                      */
+/* ------------------------------------------------------------------ */
+function PurchaseView({ items, purchases, setPurchases }: any) {
+  const rows = purchases
+    .map((p: PurchaseEntry) => ({ p, item: items.find((i: Item) => i.id === p.itemId) }))
+    .filter((r: any) => r.item);
+
+  const totalCost = rows.reduce((s: number, r: any) => s + r.p.qty * r.item.unitPrice, 0);
+
+  const updateQty = (id: string, qty: number) => {
+    if (qty < 1) return;
+    setPurchases(purchases.map((p: PurchaseEntry) => (p.id === id ? { ...p, qty } : p)));
+  };
+  const updateNote = (id: string, note: string) => {
+    setPurchases(purchases.map((p: PurchaseEntry) => (p.id === id ? { ...p, note } : p)));
+  };
+  const remove = (id: string) => {
+    setPurchases(purchases.filter((p: PurchaseEntry) => p.id !== id));
+    toast.success("Retiré de la liste d'achat.");
+  };
+  const clearAll = () => {
+    if (rows.length === 0) return;
+    if (!confirm("Vider toute la liste d'achat ?")) return;
+    setPurchases([]);
+    toast.success("Liste d'achat vidée.");
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <CardTitle>Pour achat</CardTitle>
+          <CardDescription>
+            {rows.length} article(s) à acheter · Total estimé : {fmtPrice(totalCost)}
+          </CardDescription>
+        </div>
+        <Button variant="outline" size="sm" onClick={clearAll} disabled={rows.length === 0}>
+          <Trash2 className="mr-1.5 h-4 w-4" /> Vider la liste
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Catégorie</TableHead>
+                <TableHead>Désignation</TableHead>
+                <TableHead>Référence</TableHead>
+                <TableHead>Fournisseur</TableHead>
+                <TableHead className="text-right">Prix unit.</TableHead>
+                <TableHead className="w-32 text-center">Quantité</TableHead>
+                <TableHead className="text-right">Coût total</TableHead>
+                <TableHead>Note</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map(({ p, item }: any) => (
+                <TableRow key={p.id}>
+                  <TableCell><Badge variant="outline">{item.cat}</Badge></TableCell>
+                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <TableCell className="text-xs">{item.ref}</TableCell>
+                  <TableCell className="text-xs">{item.supplier}</TableCell>
+                  <TableCell className="text-right text-sm">{fmtPrice(item.unitPrice)}</TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      min={1}
+                      className="h-8 w-20 text-center"
+                      value={p.qty}
+                      onChange={(e) => updateQty(p.id, parseInt(e.target.value) || 1)}
+                    />
+                  </TableCell>
+                  <TableCell className="text-right text-sm font-medium">
+                    {fmtPrice(p.qty * item.unitPrice)}
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      className="h-8"
+                      placeholder="Note…"
+                      value={p.note ?? ""}
+                      onChange={(e) => updateNote(p.id, e.target.value)}
+                    />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button size="icon" variant="ghost" onClick={() => remove(p.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {rows.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={9} className="py-10 text-center text-muted-foreground">
+                    Aucun article. Cliquez sur l'icône panier dans le Stock pour ajouter.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );
