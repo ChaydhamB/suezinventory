@@ -343,6 +343,24 @@ export default function Index() {
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" /> Export Excel
             </Button>
+            <input
+              id="update-xlsx-input"
+              type="file"
+              accept=".xlsx"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleUpdateTemplate(f);
+                e.target.value = "";
+              }}
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => document.getElementById("update-xlsx-input")?.click()}
+            >
+              <RefreshCw className="mr-2 h-4 w-4" /> Mettre à jour Excel
+            </Button>
             <Button variant="outline" size="sm" onClick={handleReset}>
               <RefreshCw className="mr-2 h-4 w-4" /> Réinitialiser
             </Button>
