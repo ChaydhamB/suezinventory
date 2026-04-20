@@ -1515,6 +1515,7 @@ function CategoriesView({ categories, customCats, setCustomCats, items, setItems
 /* ------------------------------------------------------------------ */
 function HistoryView({ history, setHistory, requireAdmin }: any) {
   const [date, setDate] = useState(todayISO());
+  const [time, setTime] = useState(nowTime());
   const [desig, setDesig] = useState("");
   const [ref, setRef] = useState("");
   const [qty, setQty] = useState("");
@@ -1528,8 +1529,8 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
       toast.error("La désignation est requise.");
       return;
     }
-    setHistory([...history, { date, desig: desig.trim(), ref: ref.trim(), qty: qty.trim() }]);
-    setDesig(""); setRef(""); setQty("");
+    setHistory([...history, { date, time: time || undefined, desig: desig.trim(), ref: ref.trim(), qty: qty.trim() }]);
+    setDesig(""); setRef(""); setQty(""); setTime(nowTime());
     toast.success("Entrée historique ajoutée.");
   };
 
@@ -1580,6 +1581,10 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
       if (!m[h.date]) m[h.date] = [];
       m[h.date].push(h);
     });
+    // Sort entries within each day by time descending (entries without time go last)
+    Object.values(m).forEach((arr) =>
+      arr.sort((a, b) => (b.time || "").localeCompare(a.time || ""))
+    );
     return Object.entries(m).sort((a, b) => b[0].localeCompare(a[0]));
   }, [history]);
 
@@ -1590,8 +1595,9 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
         <CardDescription>Importé du fichier Excel — modifiable.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-2 rounded-md border p-3 md:grid-cols-[150px_1fr_180px_120px_auto]">
+        <div className="grid gap-2 rounded-md border p-3 md:grid-cols-[140px_110px_1fr_160px_110px_auto]">
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
           <Input placeholder="Désignation" value={desig} onChange={(e) => setDesig(e.target.value)} />
           <Input placeholder="Référence" value={ref} onChange={(e) => setRef(e.target.value)} />
           <Input placeholder="Quantité" value={qty} onChange={(e) => setQty(e.target.value)} />
@@ -1617,6 +1623,7 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12">N°</TableHead>
+                    <TableHead className="w-20">Heure</TableHead>
                     <TableHead>Désignation</TableHead>
                     <TableHead>Référence</TableHead>
                     <TableHead>Quantité</TableHead>
@@ -1630,6 +1637,18 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
                     return (
                       <TableRow key={idx}>
                         <TableCell className="text-xs">{i + 1}</TableCell>
+                        <TableCell className="text-xs font-mono">
+                          {isEditing ? (
+                            <Input
+                              type="time"
+                              value={editDraft!.time || ""}
+                              onChange={(e) => setEditDraft({ ...editDraft!, time: e.target.value })}
+                              className="h-8 w-24"
+                            />
+                          ) : (
+                            h.time || "—"
+                          )}
+                        </TableCell>
                         <TableCell>
                           {isEditing ? (
                             <Input
