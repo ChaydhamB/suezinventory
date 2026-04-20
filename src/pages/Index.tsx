@@ -797,6 +797,7 @@ function IncomingView({ items, transactions, setTransactions, categories, comput
                   <TableHead>Article</TableHead>
                   <TableHead className="text-right">Qté</TableHead>
                   <TableHead>Note</TableHead>
+                  <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -808,6 +809,11 @@ function IncomingView({ items, transactions, setTransactions, categories, comput
                       <TableCell className="text-sm">{it?.name ?? "?"}</TableCell>
                       <TableCell className="text-right font-medium text-primary">+{t.qty}</TableCell>
                       <TableCell className="text-xs text-muted-foreground">{t.note || "—"}</TableCell>
+                      <TableCell>
+                        <Button size="icon" variant="ghost" onClick={() => removeTx(t.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
