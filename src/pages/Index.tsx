@@ -899,6 +899,22 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
     toast.success("Sortie supprimée.");
   };
 
+  const changeArmoire = (txId: string, newArmoireId: string) => {
+    const tx = transactions.find((t: Transaction) => t.id === txId);
+    if (!tx) return;
+    const it = items.find((i: Item) => i.id === tx.itemId);
+    const newArm = armoires.find((a: Armoire) => a.id === newArmoireId);
+    setTransactions(transactions.map((t: Transaction) =>
+      t.id === txId ? { ...t, armoireId: newArmoireId } : t
+    ));
+    setHistory(history.map((h: HistoryEntry) =>
+      h.txId === txId
+        ? { ...h, desig: `[SORTIE → ${newArm?.name ?? "?"}] ${it?.name ?? "?"}` }
+        : h
+    ));
+    toast.success(`Sortie déplacée vers "${newArm?.name}".`);
+  };
+
   const recent = [...transactions].filter((t: Transaction) => t.type === "out").slice(-10).reverse();
 
   return (
