@@ -288,6 +288,22 @@ export default function Index() {
     toast.success("Export Excel généré.");
   };
 
+  const handleUpdateTemplate = async (file: File) => {
+    try {
+      await updateExistingXLSX({
+        file,
+        items,
+        transactions,
+        armoires,
+        history,
+        computeStockFn: computeStock,
+      });
+      toast.success("Fichier Excel mis à jour téléchargé.");
+    } catch (e: any) {
+      toast.error("Échec de la mise à jour: " + (e?.message ?? "erreur inconnue"));
+    }
+  };
+
   const handleReset = () => {
     requireAdmin(() => {
       resetAll();
