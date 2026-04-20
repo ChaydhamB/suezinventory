@@ -588,7 +588,7 @@ function DashboardView({ kpi, items, transactions, computeStock }: any) {
 /* ------------------------------------------------------------------ */
 /*  Stock view: full CRUD                                              */
 /* ------------------------------------------------------------------ */
-function StockView({ items, setItems, categories, computeStock, requireAdmin }: any) {
+function StockView({ items, setItems, categories, computeStock, requireAdmin, purchases, setPurchases }: any) {
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("all");
   const [stockFilter, setStockFilter] = useState("all");
@@ -698,6 +698,22 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin }: 
                     <TableCell className="text-right text-sm">{fmtPrice(s * i.unitPrice)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          title="Ajouter pour achat"
+                          onClick={() => {
+                            const existing = purchases.find((p: PurchaseEntry) => p.itemId === i.id);
+                            if (existing) {
+                              setPurchases(purchases.map((p: PurchaseEntry) => p.id === existing.id ? { ...p, qty: p.qty + 1 } : p));
+                            } else {
+                              setPurchases([...purchases, { id: uid(), itemId: i.id, qty: 1, date: todayISO() }]);
+                            }
+                            toast.success(`"${i.name}" ajouté pour achat.`);
+                          }}
+                        >
+                          <ShoppingCart className="h-4 w-4 text-primary" />
+                        </Button>
                         <Button size="icon" variant="ghost" onClick={() => setEditing(i)}>
                           <Pencil className="h-4 w-4" />
                         </Button>
