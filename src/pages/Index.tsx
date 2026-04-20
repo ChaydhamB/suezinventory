@@ -731,12 +731,13 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
             </SelectContent>
           </Select>
           <Select value={stockFilter} onValueChange={setStockFilter}>
-            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tous les stocks</SelectItem>
-              <SelectItem value="ok">Stock OK (&gt;5)</SelectItem>
-              <SelectItem value="low">Stock faible (1-5)</SelectItem>
-              <SelectItem value="out">Épuisé (≤0)</SelectItem>
+              <SelectItem value="out">🔴 Épuisé (≤0)</SelectItem>
+              <SelectItem value="critical">🟠 Critique (1-{CRITICAL})</SelectItem>
+              <SelectItem value="low">🟡 Faible ({CRITICAL + 1}-{LOW})</SelectItem>
+              <SelectItem value="ok">🟢 OK (&gt;{LOW})</SelectItem>
             </SelectContent>
           </Select>
           <div className="flex items-center gap-1">
