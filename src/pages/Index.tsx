@@ -345,6 +345,8 @@ export default function Index() {
               setTransactions={setTransactions}
               categories={allCategories}
               computeStock={computeStock}
+              history={history}
+              setHistory={setHistory}
             />
           </TabsContent>
 
@@ -356,6 +358,8 @@ export default function Index() {
               armoires={armoires}
               categories={allCategories}
               computeStock={computeStock}
+              history={history}
+              setHistory={setHistory}
             />
           </TabsContent>
 
@@ -676,7 +680,7 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin }: 
 /* ------------------------------------------------------------------ */
 /*  Incoming                                                           */
 /* ------------------------------------------------------------------ */
-function IncomingView({ items, transactions, setTransactions, categories, computeStock }: any) {
+function IncomingView({ items, transactions, setTransactions, categories, computeStock, history, setHistory }: any) {
   const [itemId, setItemId] = useState("");
   const [qty, setQty] = useState("");
   const [note, setNote] = useState("");
@@ -696,11 +700,20 @@ function IncomingView({ items, transactions, setTransactions, categories, comput
       toast.error("Sélectionnez un article et une quantité valide.");
       return;
     }
-    const tx: Transaction = { id: uid(), type: "in", itemId, qty: Number(qty), note, date };
+    const txId = uid();
+    const tx: Transaction = { id: txId, type: "in", itemId, qty: Number(qty), note, date };
     setTransactions([...transactions, tx]);
     const it = items.find((i: Item) => i.id === itemId);
+    setHistory([...history, { date, desig: `[ENTRÉE] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `+${qty}`, txId, type: "in" }]);
     toast.success(`+${qty} × "${it?.name}" ajouté(s).`);
     setItemId(""); setQty(""); setNote(""); setDate(todayISO());
+  };
+
+  const removeTx = (txId: string) => {
+    if (!confirm("Supprimer cette entrée ? Le stock sera restauré.")) return;
+    setTransactions(transactions.filter((t: Transaction) => t.id !== txId));
+    setHistory(history.filter((h: HistoryEntry) => h.txId !== txId));
+    toast.success("Entrée supprimée.");
   };
 
   const recent = [...transactions].filter((t: Transaction) => t.type === "in").slice(-10).reverse();
@@ -784,6 +797,7 @@ function IncomingView({ items, transactions, setTransactions, categories, comput
                   <TableHead>Article</TableHead>
                   <TableHead className="text-right">Qté</TableHead>
                   <TableHead>Note</TableHead>
+                  <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -795,6 +809,11 @@ function IncomingView({ items, transactions, setTransactions, categories, comput
                       <TableCell className="text-sm">{it?.name ?? "?"}</TableCell>
                       <TableCell className="text-right font-medium text-primary">+{t.qty}</TableCell>
                       <TableCell className="text-xs text-muted-foreground">{t.note || "—"}</TableCell>
+                      <TableCell>
+                        <Button size="icon" variant="ghost" onClick={() => removeTx(t.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -810,7 +829,7 @@ function IncomingView({ items, transactions, setTransactions, categories, comput
 /* ------------------------------------------------------------------ */
 /*  Outgoing                                                           */
 /* ------------------------------------------------------------------ */
-function OutgoingView({ items, transactions, setTransactions, armoires, categories, computeStock }: any) {
+function OutgoingView({ items, transactions, setTransactions, armoires, categories, computeStock, history, setHistory }: any) {
   const [itemId, setItemId] = useState("");
   const [armoireId, setArmoireId] = useState(armoires[0]?.id ?? "");
   const [qty, setQty] = useState("");
@@ -842,12 +861,21 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
       toast.error(`Stock insuffisant. Disponible: ${stockNow}`);
       return;
     }
-    const tx: Transaction = { id: uid(), type: "out", itemId, armoireId, qty: Number(qty), note, date };
+    const txId = uid();
+    const tx: Transaction = { id: txId, type: "out", itemId, armoireId, qty: Number(qty), note, date };
     setTransactions([...transactions, tx]);
     const it = items.find((i: Item) => i.id === itemId);
     const arm = armoires.find((a: Armoire) => a.id === armoireId);
+    setHistory([...history, { date, desig: `[SORTIE → ${arm?.name ?? "?"}] ${it?.name ?? "?"}`, ref: it?.ref ?? "", qty: `-${qty}`, txId, type: "out" }]);
     toast.success(`-${qty} × "${it?.name}" → "${arm?.name}".`);
     setItemId(""); setQty(""); setNote(""); setDate(todayISO());
+  };
+
+  const removeTx = (txId: string) => {
+    if (!confirm("Supprimer cette sortie ? Le stock sera restauré.")) return;
+    setTransactions(transactions.filter((t: Transaction) => t.id !== txId));
+    setHistory(history.filter((h: HistoryEntry) => h.txId !== txId));
+    toast.success("Sortie supprimée.");
   };
 
   const recent = [...transactions].filter((t: Transaction) => t.type === "out").slice(-10).reverse();
@@ -940,6 +968,7 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
                   <TableHead>Article</TableHead>
                   <TableHead className="text-right">Qté</TableHead>
                   <TableHead>Armoire</TableHead>
+                  <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -952,6 +981,11 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
                       <TableCell className="text-sm">{it?.name ?? "?"}</TableCell>
                       <TableCell className="text-right font-medium text-destructive">-{t.qty}</TableCell>
                       <TableCell className="text-xs">{arm?.name ?? "?"}</TableCell>
+                      <TableCell>
+                        <Button size="icon" variant="ghost" onClick={() => removeTx(t.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   );
                 })}

@@ -24,7 +24,7 @@ export type Transaction = {
 
 export type Armoire = { id: string; name: string };
 
-export type HistoryEntry = { date: string; desig: string; ref: string; qty: string };
+export type HistoryEntry = { date: string; desig: string; ref: string; qty: string; txId?: string; type?: "in" | "out" };
 
 const LS = {
   items: "atelier.items",
