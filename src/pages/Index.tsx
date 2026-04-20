@@ -389,7 +389,7 @@ export default function Index() {
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-4">
-            <DashboardView kpi={kpi} items={items} transactions={transactions} computeStock={computeStock} />
+            <DashboardView kpi={kpi} items={items} transactions={transactions} computeStock={computeStock} purchases={purchases} setPurchases={setPurchases} />
           </TabsContent>
 
           <TabsContent value="stock">
@@ -491,7 +491,16 @@ function StatCard({ label, value, icon, sub, tone = "default" }: any) {
   );
 }
 
-function DashboardView({ kpi, items, transactions, computeStock }: any) {
+function DashboardView({ kpi, items, transactions, computeStock, purchases, setPurchases }: any) {
+  const addToPurchase = (i: Item) => {
+    const existing = purchases.find((p: PurchaseEntry) => p.itemId === i.id);
+    if (existing) {
+      setPurchases(purchases.map((p: PurchaseEntry) => p.id === existing.id ? { ...p, qty: p.qty + 1 } : p));
+    } else {
+      setPurchases([...purchases, { id: uid(), itemId: i.id, qty: 1, date: todayISO() }]);
+    }
+    toast.success(`"${i.name}" ajouté pour achat.`);
+  };
   const recent = [...transactions].slice(-10).reverse();
   const low = items.filter((i: Item) => computeStock(i) <= 5).slice(0, 12);
 
@@ -555,12 +564,13 @@ function DashboardView({ kpi, items, transactions, computeStock }: any) {
             {low.length === 0 ? (
               <p className="text-sm text-muted-foreground">Tout le stock est suffisant.</p>
             ) : (
-              <Table>
+                <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Article</TableHead>
                     <TableHead>Catégorie</TableHead>
                     <TableHead className="text-right">Stock</TableHead>
+                    <TableHead className="text-right">Achat</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -572,6 +582,11 @@ function DashboardView({ kpi, items, transactions, computeStock }: any) {
                         <Badge variant={computeStock(i) <= 0 ? "destructive" : "secondary"}>
                           {computeStock(i)}
                         </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button size="icon" variant="ghost" title="Ajouter pour achat" onClick={() => addToPurchase(i)}>
+                          <ShoppingCart className="h-4 w-4 text-primary" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
