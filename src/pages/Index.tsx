@@ -73,6 +73,8 @@ import {
   Search,
   Lock,
   ShoppingCart,
+  Check,
+  X,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -1402,6 +1404,10 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
   const [desig, setDesig] = useState("");
   const [ref, setRef] = useState("");
   const [qty, setQty] = useState("");
+  const [editingIdx, setEditingIdx] = useState<number | null>(null);
+  const [editDraft, setEditDraft] = useState<HistoryEntry | null>(null);
+
+  const today = todayISO();
 
   const add = () => {
     if (!desig.trim()) {
@@ -1418,6 +1424,41 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
       setHistory(history.filter((_: HistoryEntry, i: number) => i !== idx));
       toast.success("Entrée supprimée.");
     });
+
+  const startEdit = (idx: number, h: HistoryEntry) =>
+    requireAdmin(() => {
+      setEditingIdx(idx);
+      setEditDraft({ ...h });
+      if (h.date !== today) {
+        toast.warning(
+          "Modification d'un mouvement passé : le stock actuel ne sera pas ajusté automatiquement. Pensez à le corriger manuellement.",
+          { duration: 6000 }
+        );
+      }
+    });
+
+  const cancelEdit = () => {
+    setEditingIdx(null);
+    setEditDraft(null);
+  };
+
+  const saveEdit = () => {
+    if (editingIdx === null || !editDraft) return;
+    if (!editDraft.desig.trim()) {
+      toast.error("La désignation est requise.");
+      return;
+    }
+    const next = [...history];
+    next[editingIdx] = {
+      ...editDraft,
+      desig: editDraft.desig.trim(),
+      ref: (editDraft.ref || "").trim(),
+      qty: (editDraft.qty || "").trim(),
+    };
+    setHistory(next);
+    cancelEdit();
+    toast.success("Entrée modifiée.");
+  };
 
   const grouped = useMemo(() => {
     const m: Record<string, HistoryEntry[]> = {};
@@ -1443,11 +1484,19 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
           <Button onClick={add}><Plus className="mr-1.5 h-4 w-4" /> Ajouter</Button>
         </div>
 
-        {grouped.map(([d, entries]) => (
+        {grouped.map(([d, entries]) => {
+          const isPast = d !== today;
+          return (
           <div key={d}>
-            <div className="mb-2 flex items-center gap-2">
+            <div className="mb-2 flex items-center gap-2 flex-wrap">
               <Badge>{d}</Badge>
               <span className="text-xs text-muted-foreground">{entries.length} entrée(s)</span>
+              {isPast && (
+                <span className="flex items-center gap-1 text-xs text-destructive">
+                  <AlertTriangle className="h-3 w-3" />
+                  Modifier ces lignes n'ajuste pas le stock actuel.
+                </span>
+              )}
             </div>
             <div className="overflow-hidden rounded-md border">
               <Table>
@@ -1457,22 +1506,71 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
                     <TableHead>Désignation</TableHead>
                     <TableHead>Référence</TableHead>
                     <TableHead>Quantité</TableHead>
-                    <TableHead className="w-16" />
+                    <TableHead className="w-28" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {entries.map((h, i) => {
                     const idx = history.indexOf(h);
+                    const isEditing = editingIdx === idx && editDraft;
                     return (
                       <TableRow key={idx}>
                         <TableCell className="text-xs">{i + 1}</TableCell>
-                        <TableCell>{h.desig}</TableCell>
-                        <TableCell className="text-xs">{h.ref || "—"}</TableCell>
-                        <TableCell className="text-sm">{h.qty || "—"}</TableCell>
                         <TableCell>
-                          <Button size="icon" variant="ghost" onClick={() => del(idx)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                          {isEditing ? (
+                            <Input
+                              value={editDraft!.desig}
+                              onChange={(e) => setEditDraft({ ...editDraft!, desig: e.target.value })}
+                              className="h-8"
+                            />
+                          ) : (
+                            h.desig
+                          )}
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {isEditing ? (
+                            <Input
+                              value={editDraft!.ref || ""}
+                              onChange={(e) => setEditDraft({ ...editDraft!, ref: e.target.value })}
+                              className="h-8"
+                            />
+                          ) : (
+                            h.ref || "—"
+                          )}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {isEditing ? (
+                            <Input
+                              value={editDraft!.qty || ""}
+                              onChange={(e) => setEditDraft({ ...editDraft!, qty: e.target.value })}
+                              className="h-8 w-24"
+                            />
+                          ) : (
+                            h.qty || "—"
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex justify-end gap-1">
+                            {isEditing ? (
+                              <>
+                                <Button size="icon" variant="ghost" onClick={saveEdit} title="Enregistrer">
+                                  <Check className="h-4 w-4 text-primary" />
+                                </Button>
+                                <Button size="icon" variant="ghost" onClick={cancelEdit} title="Annuler">
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </>
+                            ) : (
+                              <>
+                                <Button size="icon" variant="ghost" onClick={() => startEdit(idx, h)} title="Modifier">
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button size="icon" variant="ghost" onClick={() => del(idx)} title="Supprimer">
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
@@ -1481,7 +1579,8 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
               </Table>
             </div>
           </div>
-        ))}
+          );
+        })}
       </CardContent>
     </Card>
   );
