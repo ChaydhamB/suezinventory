@@ -1371,7 +1371,7 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
 /* ------------------------------------------------------------------ */
 /*  Armoires                                                           */
 /* ------------------------------------------------------------------ */
-function ArmoiresView({ armoires, setArmoires, transactions, setTransactions, items, requireAdmin }: any) {
+function ArmoiresView({ armoires, setArmoires, transactions, setTransactions, items, requireAdmin, computeStock, armoireComponents, setArmoireComponents }: any) {
   const [selected, setSelected] = useState(armoires[0]?.id ?? null);
   const [newName, setNewName] = useState("");
   const [renamingId, setRenamingId] = useState<string | null>(null);
