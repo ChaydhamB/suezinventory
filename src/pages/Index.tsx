@@ -1531,6 +1531,8 @@ function ArmoiresView({ armoires, setArmoires, transactions, setTransactions, it
           />
         </div>
       )}
+
+      <Dialog open={!!renamingId} onOpenChange={(o) => !o && setRenamingId(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Renommer l'armoire</DialogTitle>
