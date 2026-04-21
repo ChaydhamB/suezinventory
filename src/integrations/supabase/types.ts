@@ -14,7 +14,266 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      app_meta: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json | null
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json | null
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json | null
+        }
+        Relationships: []
+      }
+      armoire_components: {
+        Row: {
+          actual_qty: number
+          armoire_id: string
+          created_at: string
+          id: string
+          item_id: string
+          note: string | null
+          required_qty: number
+          updated_at: string
+        }
+        Insert: {
+          actual_qty?: number
+          armoire_id: string
+          created_at?: string
+          id?: string
+          item_id: string
+          note?: string | null
+          required_qty?: number
+          updated_at?: string
+        }
+        Update: {
+          actual_qty?: number
+          armoire_id?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          note?: string | null
+          required_qty?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "armoire_components_armoire_id_fkey"
+            columns: ["armoire_id"]
+            isOneToOne: false
+            referencedRelation: "armoires"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "armoire_components_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      armoires: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      custom_cats: {
+        Row: {
+          created_at: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      history_entries: {
+        Row: {
+          created_at: string
+          date: string
+          desig: string
+          id: string
+          position: number
+          qty: string
+          ref: string
+          time: string | null
+          tx_id: string | null
+          type: string | null
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          desig: string
+          id?: string
+          position?: number
+          qty?: string
+          ref?: string
+          time?: string | null
+          tx_id?: string | null
+          type?: string | null
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          desig?: string
+          id?: string
+          position?: number
+          qty?: string
+          ref?: string
+          time?: string | null
+          tx_id?: string | null
+          type?: string | null
+        }
+        Relationships: []
+      }
+      items: {
+        Row: {
+          cat: string
+          cons_sfax: number | null
+          created_at: string
+          id: string
+          name: string
+          ref: string
+          stock: number
+          supplier: string
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          cat: string
+          cons_sfax?: number | null
+          created_at?: string
+          id: string
+          name: string
+          ref?: string
+          stock?: number
+          supplier?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          cat?: string
+          cons_sfax?: number | null
+          created_at?: string
+          id?: string
+          name?: string
+          ref?: string
+          stock?: number
+          supplier?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      purchases: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          item_id: string
+          note: string | null
+          qty: number
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id: string
+          item_id: string
+          note?: string | null
+          qty: number
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          item_id?: string
+          note?: string | null
+          qty?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          armoire_id: string | null
+          created_at: string
+          date: string
+          id: string
+          item_id: string
+          note: string | null
+          qty: number
+          type: string
+        }
+        Insert: {
+          armoire_id?: string | null
+          created_at?: string
+          date: string
+          id: string
+          item_id: string
+          note?: string | null
+          qty: number
+          type: string
+        }
+        Update: {
+          armoire_id?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          item_id?: string
+          note?: string | null
+          qty?: number
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_armoire_id_fkey"
+            columns: ["armoire_id"]
+            isOneToOne: false
+            referencedRelation: "armoires"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
