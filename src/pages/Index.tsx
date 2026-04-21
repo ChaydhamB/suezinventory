@@ -10,22 +10,30 @@ import {
   exportXLSX,
   updateExistingXLSX,
   fmtPrice,
-  loadArmoires,
-  loadCustomCats,
-  loadHistory,
-  loadItems,
-  loadPurchases,
-  loadTransactions,
-  resetAll,
-  saveArmoires,
-  saveCustomCats,
-  saveHistory,
-  saveItems,
-  savePurchases,
-  saveTransactions,
   todayISO,
   nowTime,
 } from "@/lib/inventory";
+import {
+  cloudLoadItems,
+  cloudLoadTransactions,
+  cloudLoadArmoires,
+  cloudLoadCustomCats,
+  cloudLoadHistory,
+  cloudLoadPurchases,
+  cloudSaveItems,
+  cloudSaveTransactions,
+  cloudSaveArmoires,
+  cloudSaveCustomCats,
+  cloudSaveHistory,
+  cloudSavePurchases,
+  cloudLoadArmoireComponents,
+  cloudUpsertArmoireComponent,
+  cloudDeleteArmoireComponent,
+  ensureInitialDataMigration,
+  type ArmoireComponent,
+} from "@/lib/cloudStore";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -235,48 +243,82 @@ export default function Index() {
   const [customCats, setCustomCats] = useState<string[]>([]);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [purchases, setPurchases] = useState<PurchaseEntry[]>([]);
+  const [armoireComponents, setArmoireComponents] = useState<ArmoireComponent[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [savingDisabled, setSavingDisabled] = useState(false);
   const { require: requireAdmin, Modal: AdminModal } = useAdminGate();
+  const navigate = useNavigate();
 
-  // Load
+  // Load from cloud (with one-time localStorage migration) + realtime sync
   useEffect(() => {
-    const loadedItems = loadItems();
-    const loadedTx = loadTransactions();
-    const loadedArm = loadArmoires();
-    const loadedHist = loadHistory();
-    setItems(loadedItems);
-    setTransactions(loadedTx);
-    setArmoires(loadedArm);
-    setCustomCats(loadCustomCats());
-    setPurchases(loadPurchases());
+    const refresh = async () => {
+      const [it, tx, ar, hi, ca, pu, co] = await Promise.all([
+        cloudLoadItems(),
+        cloudLoadTransactions(),
+        cloudLoadArmoires(),
+        cloudLoadHistory(),
+        cloudLoadCustomCats(),
+        cloudLoadPurchases(),
+        cloudLoadArmoireComponents(),
+      ]);
+      return { it, tx, ar, hi, ca, pu, co };
+    };
 
-    // Backfill: ensure every transaction has a matching history entry
-    const existingTxIds = new Set(loadedHist.filter((h) => h.txId).map((h) => h.txId));
-    const missing: HistoryEntry[] = [];
-    loadedTx.forEach((t) => {
-      if (existingTxIds.has(t.id)) return;
-      const it = loadedItems.find((i) => i.id === t.itemId);
-      const arm = loadedArm.find((a) => a.id === t.armoireId);
-      missing.push({
-        date: t.date,
-        desig: t.type === "in" ? `[ENTRÉE] ${it?.name ?? "?"}` : `[SORTIE → ${arm?.name ?? "?"}] ${it?.name ?? "?"}`,
-        ref: it?.ref ?? "",
-        qty: t.type === "in" ? `+${t.qty}` : `-${t.qty}`,
-        txId: t.id,
-        type: t.type,
-      });
-    });
-    setHistory(missing.length ? [...loadedHist, ...missing] : loadedHist);
-    setLoaded(true);
+    (async () => {
+      try {
+        await ensureInitialDataMigration();
+        const { it, tx, ar, hi, ca, pu, co } = await refresh();
+        setItems(it); setTransactions(tx); setArmoires(ar);
+        setCustomCats(ca); setPurchases(pu); setArmoireComponents(co);
+
+        // Backfill: ensure every transaction has a matching history entry
+        const existingTxIds = new Set(hi.filter((h) => h.txId).map((h) => h.txId));
+        const missing: HistoryEntry[] = [];
+        tx.forEach((t) => {
+          if (existingTxIds.has(t.id)) return;
+          const item = it.find((i) => i.id === t.itemId);
+          const arm = ar.find((a) => a.id === t.armoireId);
+          missing.push({
+            date: t.date,
+            desig: t.type === "in" ? `[ENTRÉE] ${item?.name ?? "?"}` : `[SORTIE → ${arm?.name ?? "?"}] ${item?.name ?? "?"}`,
+            ref: item?.ref ?? "",
+            qty: t.type === "in" ? `+${t.qty}` : `-${t.qty}`,
+            txId: t.id,
+            type: t.type,
+          });
+        });
+        setHistory(missing.length ? [...hi, ...missing] : hi);
+        setLoaded(true);
+      } catch (e: any) {
+        console.error(e);
+        toast.error("Erreur de chargement: " + (e?.message ?? "inconnue"));
+        setLoaded(true);
+      }
+    })();
+
+    // Realtime sync across users
+    const channel = supabase
+      .channel("atelier-sync")
+      .on("postgres_changes", { event: "*", schema: "public" }, async () => {
+        try {
+          const { it, tx, ar, hi, ca, pu, co } = await refresh();
+          setSavingDisabled(true);
+          setItems(it); setTransactions(tx); setArmoires(ar);
+          setHistory(hi); setCustomCats(ca); setPurchases(pu); setArmoireComponents(co);
+          setTimeout(() => setSavingDisabled(false), 100);
+        } catch {}
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
-  // Persist
-  useEffect(() => { if (loaded) saveItems(items); }, [items, loaded]);
-  useEffect(() => { if (loaded) saveTransactions(transactions); }, [transactions, loaded]);
-  useEffect(() => { if (loaded) saveArmoires(armoires); }, [armoires, loaded]);
-  useEffect(() => { if (loaded) saveCustomCats(customCats); }, [customCats, loaded]);
-  useEffect(() => { if (loaded) saveHistory(history); }, [history, loaded]);
-  useEffect(() => { if (loaded) savePurchases(purchases); }, [purchases, loaded]);
+  // Persist to cloud
+  useEffect(() => { if (loaded && !savingDisabled) cloudSaveItems(items).catch((e) => toast.error("Sync items: " + e.message)); }, [items, loaded, savingDisabled]);
+  useEffect(() => { if (loaded && !savingDisabled) cloudSaveTransactions(transactions).catch((e) => toast.error("Sync tx: " + e.message)); }, [transactions, loaded, savingDisabled]);
+  useEffect(() => { if (loaded && !savingDisabled) cloudSaveArmoires(armoires).catch((e) => toast.error("Sync armoires: " + e.message)); }, [armoires, loaded, savingDisabled]);
+  useEffect(() => { if (loaded && !savingDisabled) cloudSaveCustomCats(customCats).catch((e) => toast.error("Sync cats: " + e.message)); }, [customCats, loaded, savingDisabled]);
+  useEffect(() => { if (loaded && !savingDisabled) cloudSaveHistory(history).catch((e) => toast.error("Sync history: " + e.message)); }, [history, loaded, savingDisabled]);
+  useEffect(() => { if (loaded && !savingDisabled) cloudSavePurchases(purchases).catch((e) => toast.error("Sync purchases: " + e.message)); }, [purchases, loaded, savingDisabled]);
 
   const allCategories = useMemo(() => {
     const fromItems = Array.from(new Set(items.map((i) => i.cat)));
@@ -306,14 +348,7 @@ export default function Index() {
 
   const handleUpdateTemplate = async (file: File) => {
     try {
-      await updateExistingXLSX({
-        file,
-        items,
-        transactions,
-        armoires,
-        history,
-        computeStockFn: computeStock,
-      });
+      await updateExistingXLSX({ file, items, transactions, armoires, history, computeStockFn: computeStock });
       toast.success("Fichier Excel mis à jour téléchargé.");
     } catch (e: any) {
       toast.error("Échec de la mise à jour: " + (e?.message ?? "erreur inconnue"));
@@ -321,15 +356,26 @@ export default function Index() {
   };
 
   const handleReset = () => {
-    requireAdmin(() => {
-      resetAll();
-      setItems(loadItems());
-      setTransactions(loadTransactions());
-      setArmoires(loadArmoires());
-      setCustomCats([]);
-      setHistory(loadHistory());
-      toast.success("Données réinitialisées au catalogue d'origine.");
+    requireAdmin(async () => {
+      try {
+        const seedMod: any = await import("@/data/seed.json");
+        const seedItems = seedMod.default.items as Item[];
+        const seedHist = seedMod.default.history as HistoryEntry[];
+        setItems(seedItems);
+        setTransactions([]);
+        setCustomCats([]);
+        setHistory(seedHist);
+        setPurchases([]);
+        toast.success("Données réinitialisées au catalogue d'origine.");
+      } catch (e: any) {
+        toast.error("Échec reset: " + e.message);
+      }
     });
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth", { replace: true });
   };
 
   if (!loaded) {
@@ -379,6 +425,9 @@ export default function Index() {
             </Button>
             <Button variant="outline" size="sm" onClick={handleReset}>
               <RefreshCw className="mr-2 h-4 w-4" /> Réinitialiser
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <Lock className="mr-2 h-4 w-4" /> Déconnexion
             </Button>
           </div>
         </div>
@@ -454,6 +503,9 @@ export default function Index() {
               setTransactions={setTransactions}
               items={items}
               requireAdmin={requireAdmin}
+              computeStock={computeStock}
+              armoireComponents={armoireComponents}
+              setArmoireComponents={setArmoireComponents}
             />
           </TabsContent>
 
@@ -1319,7 +1371,7 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
 /* ------------------------------------------------------------------ */
 /*  Armoires                                                           */
 /* ------------------------------------------------------------------ */
-function ArmoiresView({ armoires, setArmoires, transactions, setTransactions, items, requireAdmin }: any) {
+function ArmoiresView({ armoires, setArmoires, transactions, setTransactions, items, requireAdmin, computeStock, armoireComponents, setArmoireComponents }: any) {
   const [selected, setSelected] = useState(armoires[0]?.id ?? null);
   const [newName, setNewName] = useState("");
   const [renamingId, setRenamingId] = useState<string | null>(null);
@@ -1466,6 +1518,20 @@ function ArmoiresView({ armoires, setArmoires, transactions, setTransactions, it
         </CardContent>
       </Card>
 
+      {sel && (
+        <div className="md:col-span-2">
+          <ArmoireComponentsPanel
+            armoireId={sel.id}
+            armoireName={sel.name}
+            items={items}
+            computeStock={computeStock}
+            armoireComponents={armoireComponents}
+            setArmoireComponents={setArmoireComponents}
+            requireAdmin={requireAdmin}
+          />
+        </div>
+      )}
+
       <Dialog open={!!renamingId} onOpenChange={(o) => !o && setRenamingId(null)}>
         <DialogContent>
           <DialogHeader>
@@ -1483,7 +1549,244 @@ function ArmoiresView({ armoires, setArmoires, transactions, setTransactions, it
 }
 
 /* ------------------------------------------------------------------ */
-/*  Categories                                                         */
+/*  Armoire Components Panel — assigned + actual + availability        */
+/* ------------------------------------------------------------------ */
+function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, armoireComponents, setArmoireComponents, requireAdmin }: any) {
+  const [adding, setAdding] = useState(false);
+  const [newItemId, setNewItemId] = useState("");
+  const [newReq, setNewReq] = useState("1");
+  const [newAct, setNewAct] = useState("0");
+  const [search, setSearch] = useState("");
+
+  const list = useMemo(
+    () => armoireComponents
+      .filter((c: ArmoireComponent) => c.armoireId === armoireId)
+      .map((c: ArmoireComponent) => ({ c, item: items.find((i: Item) => i.id === c.itemId) }))
+      .filter((x: any) => x.item),
+    [armoireComponents, armoireId, items]
+  );
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return list;
+    return list.filter(({ item }: any) =>
+      item.name.toLowerCase().includes(q) || (item.ref ?? "").toLowerCase().includes(q)
+    );
+  }, [list, search]);
+
+  const availableItems = useMemo(
+    () => items.filter((i: Item) => !list.some((x: any) => x.item.id === i.id)),
+    [items, list]
+  );
+
+  const updateField = async (comp: ArmoireComponent, patch: Partial<ArmoireComponent>) => {
+    const next = { ...comp, ...patch };
+    try {
+      const saved = await cloudUpsertArmoireComponent(next);
+      setArmoireComponents((prev: ArmoireComponent[]) =>
+        prev.map((c) => (c.id === comp.id ? { ...next, id: saved.id } : c))
+      );
+    } catch (e: any) {
+      toast.error("Erreur: " + e.message);
+    }
+  };
+
+  const addComponent = async () => {
+    if (!newItemId) return toast.error("Choisissez un article.");
+    const req = parseInt(newReq) || 0;
+    const act = parseInt(newAct) || 0;
+    try {
+      const saved = await cloudUpsertArmoireComponent({
+        armoireId,
+        itemId: newItemId,
+        requiredQty: req,
+        actualQty: act,
+      });
+      setArmoireComponents((prev: ArmoireComponent[]) => [
+        ...prev,
+        { id: saved.id, armoireId, itemId: newItemId, requiredQty: req, actualQty: act },
+      ]);
+      setNewItemId(""); setNewReq("1"); setNewAct("0"); setAdding(false);
+      toast.success("Composant ajouté.");
+    } catch (e: any) {
+      toast.error("Erreur: " + e.message);
+    }
+  };
+
+  const remove = (comp: ArmoireComponent) => {
+    requireAdmin(async () => {
+      if (!comp.id) return;
+      try {
+        await cloudDeleteArmoireComponent(comp.id);
+        setArmoireComponents((prev: ArmoireComponent[]) => prev.filter((c) => c.id !== comp.id));
+        toast.success("Composant retiré.");
+      } catch (e: any) {
+        toast.error("Erreur: " + e.message);
+      }
+    });
+  };
+
+  const stats = useMemo(() => {
+    let ok = 0, missing = 0, low = 0;
+    list.forEach(({ c, item }: any) => {
+      const stock = computeStock(item);
+      if (c.actualQty >= c.requiredQty) ok++;
+      else if (c.actualQty === 0) missing++;
+      else low++;
+    });
+    return { ok, missing, low, total: list.length };
+  }, [list, computeStock]);
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <CardTitle>Composants assignés — {armoireName}</CardTitle>
+            <CardDescription>
+              Définissez les composants requis et la quantité réellement présente dans l'armoire.
+            </CardDescription>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline" className="bg-primary/10">{stats.total} composants</Badge>
+            <Badge className="bg-green-500/15 text-green-700 dark:text-green-400">OK: {stats.ok}</Badge>
+            <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">Partiel: {stats.low}</Badge>
+            <Badge className="bg-destructive/15 text-destructive">Manquant: {stats.missing}</Badge>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            placeholder="Rechercher un composant…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-xs"
+          />
+          <Button size="sm" onClick={() => setAdding(true)}>
+            <Plus className="mr-1 h-4 w-4" /> Ajouter un composant
+          </Button>
+        </div>
+
+        {filtered.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-6 text-center">
+            Aucun composant assigné. Cliquez sur "Ajouter un composant" pour commencer.
+          </p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Article</TableHead>
+                <TableHead>Référence</TableHead>
+                <TableHead className="text-right">Requis</TableHead>
+                <TableHead className="text-right">Présent</TableHead>
+                <TableHead className="text-right">Stock magasin</TableHead>
+                <TableHead>État</TableHead>
+                <TableHead>Disponibilité</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map(({ c, item }: any) => {
+                const stock = computeStock(item);
+                const ratio = c.requiredQty > 0 ? c.actualQty / c.requiredQty : 1;
+                let rowClass = "";
+                let etat: { label: string; className: string };
+                if (c.actualQty >= c.requiredQty) {
+                  etat = { label: "OK", className: "bg-green-500/15 text-green-700 dark:text-green-400" };
+                  rowClass = "bg-green-500/5";
+                } else if (c.actualQty === 0) {
+                  etat = { label: "Manquant", className: "bg-destructive/15 text-destructive" };
+                  rowClass = "bg-destructive/5";
+                } else {
+                  etat = { label: "Partiel", className: "bg-amber-500/15 text-amber-700 dark:text-amber-400" };
+                  rowClass = "bg-amber-500/5";
+                }
+                const need = Math.max(0, c.requiredQty - c.actualQty);
+                const dispo = stock >= need
+                  ? { label: stock > 0 ? "Disponible en stock" : "OK", className: "bg-green-500/15 text-green-700 dark:text-green-400" }
+                  : { label: `Manque ${need - stock} en magasin`, className: "bg-destructive/15 text-destructive" };
+                return (
+                  <TableRow key={c.id} className={rowClass}>
+                    <TableCell className="font-medium">
+                      <div>{item.name}</div>
+                      <div className="text-xs text-muted-foreground">{item.cat}</div>
+                    </TableCell>
+                    <TableCell className="text-xs">{item.ref}</TableCell>
+                    <TableCell className="text-right">
+                      <Input
+                        type="number"
+                        min={0}
+                        value={c.requiredQty}
+                        onChange={(e) => updateField(c, { requiredQty: parseInt(e.target.value) || 0 })}
+                        className="h-8 w-20 text-right ml-auto"
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Input
+                        type="number"
+                        min={0}
+                        value={c.actualQty}
+                        onChange={(e) => updateField(c, { actualQty: parseInt(e.target.value) || 0 })}
+                        className="h-8 w-20 text-right ml-auto"
+                      />
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">{stock}</TableCell>
+                    <TableCell><Badge className={etat.className}>{etat.label}</Badge></TableCell>
+                    <TableCell><Badge className={dispo.className}>{dispo.label}</Badge></TableCell>
+                    <TableCell>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(c)}>
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+
+      <Dialog open={adding} onOpenChange={setAdding}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ajouter un composant à {armoireName}</DialogTitle>
+            <DialogDescription>Choisissez l'article et indiquez les quantités.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Article</Label>
+              <Select value={newItemId} onValueChange={setNewItemId}>
+                <SelectTrigger><SelectValue placeholder="Choisir un article…" /></SelectTrigger>
+                <SelectContent>
+                  {availableItems.map((i: Item) => (
+                    <SelectItem key={i.id} value={i.id}>{i.name} {i.ref ? `(${i.ref})` : ""}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Quantité requise</Label>
+                <Input type="number" min={0} value={newReq} onChange={(e) => setNewReq(e.target.value)} />
+              </div>
+              <div>
+                <Label>Quantité présente</Label>
+                <Input type="number" min={0} value={newAct} onChange={(e) => setNewAct(e.target.value)} />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAdding(false)}>Annuler</Button>
+            <Button onClick={addComponent}>Ajouter</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}
+
+
 /* ------------------------------------------------------------------ */
 function CategoriesView({ categories, customCats, setCustomCats, items, setItems, requireAdmin }: any) {
   const [name, setName] = useState("");
