@@ -10,22 +10,30 @@ import {
   exportXLSX,
   updateExistingXLSX,
   fmtPrice,
-  loadArmoires,
-  loadCustomCats,
-  loadHistory,
-  loadItems,
-  loadPurchases,
-  loadTransactions,
-  resetAll,
-  saveArmoires,
-  saveCustomCats,
-  saveHistory,
-  saveItems,
-  savePurchases,
-  saveTransactions,
   todayISO,
   nowTime,
 } from "@/lib/inventory";
+import {
+  cloudLoadItems,
+  cloudLoadTransactions,
+  cloudLoadArmoires,
+  cloudLoadCustomCats,
+  cloudLoadHistory,
+  cloudLoadPurchases,
+  cloudSaveItems,
+  cloudSaveTransactions,
+  cloudSaveArmoires,
+  cloudSaveCustomCats,
+  cloudSaveHistory,
+  cloudSavePurchases,
+  cloudLoadArmoireComponents,
+  cloudUpsertArmoireComponent,
+  cloudDeleteArmoireComponent,
+  ensureInitialDataMigration,
+  type ArmoireComponent,
+} from "@/lib/cloudStore";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
