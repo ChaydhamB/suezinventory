@@ -128,11 +128,11 @@ export async function cloudLoadPurchases(): Promise<PurchaseEntry[]> {
 
 /* ---------- Replace-all savers (simple & correct) ---------- */
 async function replaceTable(table: string, rows: any[]) {
-  // delete all then insert (small dataset, fine for shared workspace)
-  const { error: dErr } = await supabase.from(table).delete().not("id", "is", null);
+  const client = supabase as any;
+  const { error: dErr } = await client.from(table).delete().not("id", "is", null);
   if (dErr) throw dErr;
   if (rows.length === 0) return;
-  const { error: iErr } = await supabase.from(table).insert(rows);
+  const { error: iErr } = await client.from(table).insert(rows);
   if (iErr) throw iErr;
 }
 
