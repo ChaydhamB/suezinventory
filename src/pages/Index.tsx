@@ -426,6 +426,9 @@ export default function Index() {
             <Button variant="outline" size="sm" onClick={handleReset}>
               <RefreshCw className="mr-2 h-4 w-4" /> Réinitialiser
             </Button>
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <Lock className="mr-2 h-4 w-4" /> Déconnexion
+            </Button>
           </div>
         </div>
       </header>
@@ -500,6 +503,9 @@ export default function Index() {
               setTransactions={setTransactions}
               items={items}
               requireAdmin={requireAdmin}
+              computeStock={computeStock}
+              armoireComponents={armoireComponents}
+              setArmoireComponents={setArmoireComponents}
             />
           </TabsContent>
 
