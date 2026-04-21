@@ -1518,7 +1518,19 @@ function ArmoiresView({ armoires, setArmoires, transactions, setTransactions, it
         </CardContent>
       </Card>
 
-      <Dialog open={!!renamingId} onOpenChange={(o) => !o && setRenamingId(null)}>
+      {sel && (
+        <div className="md:col-span-2">
+          <ArmoireComponentsPanel
+            armoireId={sel.id}
+            armoireName={sel.name}
+            items={items}
+            computeStock={computeStock}
+            armoireComponents={armoireComponents}
+            setArmoireComponents={setArmoireComponents}
+            requireAdmin={requireAdmin}
+          />
+        </div>
+      )}
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Renommer l'armoire</DialogTitle>
