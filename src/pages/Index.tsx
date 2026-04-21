@@ -243,48 +243,82 @@ export default function Index() {
   const [customCats, setCustomCats] = useState<string[]>([]);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [purchases, setPurchases] = useState<PurchaseEntry[]>([]);
+  const [armoireComponents, setArmoireComponents] = useState<ArmoireComponent[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [savingDisabled, setSavingDisabled] = useState(false);
   const { require: requireAdmin, Modal: AdminModal } = useAdminGate();
+  const navigate = useNavigate();
 
-  // Load
+  // Load from cloud (with one-time localStorage migration) + realtime sync
   useEffect(() => {
-    const loadedItems = loadItems();
-    const loadedTx = loadTransactions();
-    const loadedArm = loadArmoires();
-    const loadedHist = loadHistory();
-    setItems(loadedItems);
-    setTransactions(loadedTx);
-    setArmoires(loadedArm);
-    setCustomCats(loadCustomCats());
-    setPurchases(loadPurchases());
+    const refresh = async () => {
+      const [it, tx, ar, hi, ca, pu, co] = await Promise.all([
+        cloudLoadItems(),
+        cloudLoadTransactions(),
+        cloudLoadArmoires(),
+        cloudLoadHistory(),
+        cloudLoadCustomCats(),
+        cloudLoadPurchases(),
+        cloudLoadArmoireComponents(),
+      ]);
+      return { it, tx, ar, hi, ca, pu, co };
+    };
 
-    // Backfill: ensure every transaction has a matching history entry
-    const existingTxIds = new Set(loadedHist.filter((h) => h.txId).map((h) => h.txId));
-    const missing: HistoryEntry[] = [];
-    loadedTx.forEach((t) => {
-      if (existingTxIds.has(t.id)) return;
-      const it = loadedItems.find((i) => i.id === t.itemId);
-      const arm = loadedArm.find((a) => a.id === t.armoireId);
-      missing.push({
-        date: t.date,
-        desig: t.type === "in" ? `[ENTRÉE] ${it?.name ?? "?"}` : `[SORTIE → ${arm?.name ?? "?"}] ${it?.name ?? "?"}`,
-        ref: it?.ref ?? "",
-        qty: t.type === "in" ? `+${t.qty}` : `-${t.qty}`,
-        txId: t.id,
-        type: t.type,
-      });
-    });
-    setHistory(missing.length ? [...loadedHist, ...missing] : loadedHist);
-    setLoaded(true);
+    (async () => {
+      try {
+        await ensureInitialDataMigration();
+        const { it, tx, ar, hi, ca, pu, co } = await refresh();
+        setItems(it); setTransactions(tx); setArmoires(ar);
+        setCustomCats(ca); setPurchases(pu); setArmoireComponents(co);
+
+        // Backfill: ensure every transaction has a matching history entry
+        const existingTxIds = new Set(hi.filter((h) => h.txId).map((h) => h.txId));
+        const missing: HistoryEntry[] = [];
+        tx.forEach((t) => {
+          if (existingTxIds.has(t.id)) return;
+          const item = it.find((i) => i.id === t.itemId);
+          const arm = ar.find((a) => a.id === t.armoireId);
+          missing.push({
+            date: t.date,
+            desig: t.type === "in" ? `[ENTRÉE] ${item?.name ?? "?"}` : `[SORTIE → ${arm?.name ?? "?"}] ${item?.name ?? "?"}`,
+            ref: item?.ref ?? "",
+            qty: t.type === "in" ? `+${t.qty}` : `-${t.qty}`,
+            txId: t.id,
+            type: t.type,
+          });
+        });
+        setHistory(missing.length ? [...hi, ...missing] : hi);
+        setLoaded(true);
+      } catch (e: any) {
+        console.error(e);
+        toast.error("Erreur de chargement: " + (e?.message ?? "inconnue"));
+        setLoaded(true);
+      }
+    })();
+
+    // Realtime sync across users
+    const channel = supabase
+      .channel("atelier-sync")
+      .on("postgres_changes", { event: "*", schema: "public" }, async () => {
+        try {
+          const { it, tx, ar, hi, ca, pu, co } = await refresh();
+          setSavingDisabled(true);
+          setItems(it); setTransactions(tx); setArmoires(ar);
+          setHistory(hi); setCustomCats(ca); setPurchases(pu); setArmoireComponents(co);
+          setTimeout(() => setSavingDisabled(false), 100);
+        } catch {}
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
-  // Persist
-  useEffect(() => { if (loaded) saveItems(items); }, [items, loaded]);
-  useEffect(() => { if (loaded) saveTransactions(transactions); }, [transactions, loaded]);
-  useEffect(() => { if (loaded) saveArmoires(armoires); }, [armoires, loaded]);
-  useEffect(() => { if (loaded) saveCustomCats(customCats); }, [customCats, loaded]);
-  useEffect(() => { if (loaded) saveHistory(history); }, [history, loaded]);
-  useEffect(() => { if (loaded) savePurchases(purchases); }, [purchases, loaded]);
+  // Persist to cloud
+  useEffect(() => { if (loaded && !savingDisabled) cloudSaveItems(items).catch((e) => toast.error("Sync items: " + e.message)); }, [items, loaded, savingDisabled]);
+  useEffect(() => { if (loaded && !savingDisabled) cloudSaveTransactions(transactions).catch((e) => toast.error("Sync tx: " + e.message)); }, [transactions, loaded, savingDisabled]);
+  useEffect(() => { if (loaded && !savingDisabled) cloudSaveArmoires(armoires).catch((e) => toast.error("Sync armoires: " + e.message)); }, [armoires, loaded, savingDisabled]);
+  useEffect(() => { if (loaded && !savingDisabled) cloudSaveCustomCats(customCats).catch((e) => toast.error("Sync cats: " + e.message)); }, [customCats, loaded, savingDisabled]);
+  useEffect(() => { if (loaded && !savingDisabled) cloudSaveHistory(history).catch((e) => toast.error("Sync history: " + e.message)); }, [history, loaded, savingDisabled]);
+  useEffect(() => { if (loaded && !savingDisabled) cloudSavePurchases(purchases).catch((e) => toast.error("Sync purchases: " + e.message)); }, [purchases, loaded, savingDisabled]);
 
   const allCategories = useMemo(() => {
     const fromItems = Array.from(new Set(items.map((i) => i.cat)));
@@ -314,14 +348,7 @@ export default function Index() {
 
   const handleUpdateTemplate = async (file: File) => {
     try {
-      await updateExistingXLSX({
-        file,
-        items,
-        transactions,
-        armoires,
-        history,
-        computeStockFn: computeStock,
-      });
+      await updateExistingXLSX({ file, items, transactions, armoires, history, computeStockFn: computeStock });
       toast.success("Fichier Excel mis à jour téléchargé.");
     } catch (e: any) {
       toast.error("Échec de la mise à jour: " + (e?.message ?? "erreur inconnue"));
@@ -329,15 +356,26 @@ export default function Index() {
   };
 
   const handleReset = () => {
-    requireAdmin(() => {
-      resetAll();
-      setItems(loadItems());
-      setTransactions(loadTransactions());
-      setArmoires(loadArmoires());
-      setCustomCats([]);
-      setHistory(loadHistory());
-      toast.success("Données réinitialisées au catalogue d'origine.");
+    requireAdmin(async () => {
+      try {
+        const seedMod: any = await import("@/data/seed.json");
+        const seedItems = seedMod.default.items as Item[];
+        const seedHist = seedMod.default.history as HistoryEntry[];
+        setItems(seedItems);
+        setTransactions([]);
+        setCustomCats([]);
+        setHistory(seedHist);
+        setPurchases([]);
+        toast.success("Données réinitialisées au catalogue d'origine.");
+      } catch (e: any) {
+        toast.error("Échec reset: " + e.message);
+      }
     });
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/auth", { replace: true });
   };
 
   if (!loaded) {
