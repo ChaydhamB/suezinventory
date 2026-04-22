@@ -301,29 +301,51 @@ export default function Index() {
       }
     })();
 
-    // Realtime sync across users
+    // Realtime sync — refreshes state without flipping dirty flags, killing the cross-user wipe race.
     const channel = supabase
       .channel("atelier-sync")
       .on("postgres_changes", { event: "*", schema: "public" }, async () => {
         try {
           const { it, tx, ar, hi, ca, pu, co } = await refresh();
-          setSavingDisabled(true);
           setItems(it); setTransactions(tx); setArmoires(ar);
           setHistory(hi); setCustomCats(ca); setPurchases(pu); setArmoireComponents(co);
-          setTimeout(() => setSavingDisabled(false), 100);
         } catch {}
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
 
-  // Persist to cloud
-  useEffect(() => { if (loaded && !savingDisabled) cloudSaveItems(items).catch((e) => toast.error("Sync items: " + e.message)); }, [items, loaded, savingDisabled]);
-  useEffect(() => { if (loaded && !savingDisabled) cloudSaveTransactions(transactions).catch((e) => toast.error("Sync tx: " + e.message)); }, [transactions, loaded, savingDisabled]);
-  useEffect(() => { if (loaded && !savingDisabled) cloudSaveArmoires(armoires).catch((e) => toast.error("Sync armoires: " + e.message)); }, [armoires, loaded, savingDisabled]);
-  useEffect(() => { if (loaded && !savingDisabled) cloudSaveCustomCats(customCats).catch((e) => toast.error("Sync cats: " + e.message)); }, [customCats, loaded, savingDisabled]);
-  useEffect(() => { if (loaded && !savingDisabled) cloudSaveHistory(history).catch((e) => toast.error("Sync history: " + e.message)); }, [history, loaded, savingDisabled]);
-  useEffect(() => { if (loaded && !savingDisabled) cloudSavePurchases(purchases).catch((e) => toast.error("Sync purchases: " + e.message)); }, [purchases, loaded, savingDisabled]);
+  // Persist to cloud — only when this user actually mutated the slice.
+  useEffect(() => {
+    if (!loaded || !dirty.items) return;
+    setDirty((d) => ({ ...d, items: false }));
+    cloudSaveItems(items).catch((e) => toast.error("Sync items: " + e.message));
+  }, [items, loaded, dirty.items]);
+  useEffect(() => {
+    if (!loaded || !dirty.tx) return;
+    setDirty((d) => ({ ...d, tx: false }));
+    cloudSaveTransactions(transactions).catch((e) => toast.error("Sync tx: " + e.message));
+  }, [transactions, loaded, dirty.tx]);
+  useEffect(() => {
+    if (!loaded || !dirty.armoires) return;
+    setDirty((d) => ({ ...d, armoires: false }));
+    cloudSaveArmoires(armoires).catch((e) => toast.error("Sync armoires: " + e.message));
+  }, [armoires, loaded, dirty.armoires]);
+  useEffect(() => {
+    if (!loaded || !dirty.cats) return;
+    setDirty((d) => ({ ...d, cats: false }));
+    cloudSaveCustomCats(customCats).catch((e) => toast.error("Sync cats: " + e.message));
+  }, [customCats, loaded, dirty.cats]);
+  useEffect(() => {
+    if (!loaded || !dirty.history) return;
+    setDirty((d) => ({ ...d, history: false }));
+    cloudSaveHistory(history).catch((e) => toast.error("Sync history: " + e.message));
+  }, [history, loaded, dirty.history]);
+  useEffect(() => {
+    if (!loaded || !dirty.purchases) return;
+    setDirty((d) => ({ ...d, purchases: false }));
+    cloudSavePurchases(purchases).catch((e) => toast.error("Sync purchases: " + e.message));
+  }, [purchases, loaded, dirty.purchases]);
 
   const allCategories = useMemo(() => {
     const fromItems = Array.from(new Set(items.map((i) => i.cat)));
