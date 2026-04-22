@@ -513,13 +513,6 @@ export default function Index() {
             <TabsTrigger value="out"><ArrowUpFromLine className="mr-1.5 h-4 w-4" />Sorties</TabsTrigger>
             <TabsTrigger value="purchase"><ShoppingCart className="mr-1.5 h-4 w-4" />Pour achat</TabsTrigger>
             <TabsTrigger value="armoires"><Box className="mr-1.5 h-4 w-4" />Armoires</TabsTrigger>
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-8">
-            <TabsTrigger value="dashboard"><LayoutGrid className="mr-1.5 h-4 w-4" />Tableau</TabsTrigger>
-            <TabsTrigger value="stock"><Package className="mr-1.5 h-4 w-4" />Stock</TabsTrigger>
-            <TabsTrigger value="in"><ArrowDownToLine className="mr-1.5 h-4 w-4" />Entrées</TabsTrigger>
-            <TabsTrigger value="out"><ArrowUpFromLine className="mr-1.5 h-4 w-4" />Sorties</TabsTrigger>
-            <TabsTrigger value="purchase"><ShoppingCart className="mr-1.5 h-4 w-4" />Pour achat</TabsTrigger>
-            <TabsTrigger value="armoires"><Box className="mr-1.5 h-4 w-4" />Armoires</TabsTrigger>
             <TabsTrigger value="cats"><LayoutGrid className="mr-1.5 h-4 w-4" />Catégories</TabsTrigger>
             <TabsTrigger value="history"><HistoryIcon className="mr-1.5 h-4 w-4" />Historique</TabsTrigger>
           </TabsList>
