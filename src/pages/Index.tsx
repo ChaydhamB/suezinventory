@@ -245,7 +245,12 @@ export default function Index() {
   const [purchases, setPurchases] = useState<PurchaseEntry[]>([]);
   const [armoireComponents, setArmoireComponents] = useState<ArmoireComponent[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [savingDisabled, setSavingDisabled] = useState(false);
+  // Per-table dirty flags. Local mutations set them true; realtime refresh leaves them false.
+  // This prevents the cross-user "delete-all + reinsert" sync wipe.
+  const [dirty, setDirty] = useState({
+    items: false, tx: false, armoires: false, cats: false, history: false, purchases: false,
+  });
+  const markDirty = useCallback((k: keyof typeof dirty) => setDirty((d) => ({ ...d, [k]: true })), []);
   const { require: requireAdmin, Modal: AdminModal } = useAdminGate();
   const navigate = useNavigate();
 
