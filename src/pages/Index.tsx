@@ -402,11 +402,11 @@ export default function Index() {
         const seedMod: any = await import("@/data/seed.json");
         const seedItems = seedMod.default.items as Item[];
         const seedHist = seedMod.default.history as HistoryEntry[];
-        setItems(seedItems);
-        setTransactions([]);
-        setCustomCats([]);
-        setHistory(seedHist);
-        setPurchases([]);
+        setItemsM(seedItems);
+        setTransactionsM([]);
+        setCustomCatsM([]);
+        setHistoryM(seedHist);
+        setPurchasesM([]);
         toast.success("Données réinitialisées au catalogue d'origine.");
       } catch (e: any) {
         toast.error("Échec reset: " + e.message);
