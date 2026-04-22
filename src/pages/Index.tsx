@@ -2033,13 +2033,6 @@ function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, a
   );
 }
 
-  const list = useMemo(
-    () => armoireComponents
-      .filter((c: ArmoireComponent) => c.armoireId === armoireId)
-      .map((c: ArmoireComponent) => ({ c, item: items.find((i: Item) => i.id === c.itemId) }))
-      .filter((x: any) => x.item),
-    [armoireComponents, armoireId, items]
-  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
