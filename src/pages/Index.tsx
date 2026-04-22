@@ -690,7 +690,7 @@ function DashboardView({ kpi, items, transactions, computeStock, purchases, setP
                     return (
                       <TableRow key={t.id}>
                         <TableCell className="text-xs">{t.date}</TableCell>
-                        <TableCell className="text-sm">{it?.name ?? "?"}</TableCell>
+                        <TableCell className="text-sm"><ItemLink item={it} /></TableCell>
                         <TableCell className="text-right font-medium">{t.qty}</TableCell>
                         <TableCell>
                           <Badge variant={t.type === "in" ? "default" : "secondary"}>
@@ -743,7 +743,7 @@ function DashboardView({ kpi, items, transactions, computeStock, purchases, setP
                 <TableBody>
                   {low.map((i: Item) => (
                     <TableRow key={i.id}>
-                      <TableCell className="text-sm">{i.name}</TableCell>
+                      <TableCell className="text-sm"><ItemLink item={i} /></TableCell>
                       <TableCell className="text-xs text-muted-foreground">{i.cat}</TableCell>
                       <TableCell className="text-right">
                         <Badge variant={computeStock(i) <= 0 ? "destructive" : "secondary"}>
