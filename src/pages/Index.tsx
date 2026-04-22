@@ -754,7 +754,7 @@ function DashboardView({ kpi, items, transactions, computeStock, purchases, setP
 /* ------------------------------------------------------------------ */
 /*  Stock view: full CRUD                                              */
 /* ------------------------------------------------------------------ */
-function StockView({ items, setItems, categories, computeStock, requireAdmin, purchases, setPurchases }: any) {
+function StockView({ items, setItems, categories, computeStock, requireAdmin, purchases, setPurchases, initialSearch, onConsumeInitialSearch }: any) {
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState<string[]>([]);
   const [stockFilter, setStockFilter] = useState("all");
@@ -764,6 +764,14 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [editing, setEditing] = useState<Item | null>(null);
   const [creating, setCreating] = useState(false);
+
+  // Apply incoming search from a "click an item" navigation
+  useEffect(() => {
+    if (initialSearch) {
+      setSearch(initialSearch);
+      onConsumeInitialSearch?.();
+    }
+  }, [initialSearch, onConsumeInitialSearch]);
 
   const CRITICAL = 3;
   const LOW = 5;
