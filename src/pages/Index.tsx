@@ -1041,7 +1041,7 @@ function StockView({ items, setItems, categories, computeStock, requireAdmin, pu
                 return (
                   <TableRow key={i.id} className={rowTone}>
                     <TableCell><Badge variant="outline">{i.cat}</Badge></TableCell>
-                    <TableCell className="font-medium">{i.name}</TableCell>
+                    <TableCell className="font-medium"><ItemLink item={i} /></TableCell>
                     <TableCell className="text-xs">{i.ref}</TableCell>
                     <TableCell className="text-xs">{i.supplier}</TableCell>
                     <TableCell className="text-right text-sm">{fmtPrice(i.unitPrice)}</TableCell>
@@ -1249,7 +1249,7 @@ function IncomingView({ items, transactions, setTransactions, categories, comput
                   return (
                     <TableRow key={t.id}>
                       <TableCell className="text-xs">{t.date}</TableCell>
-                      <TableCell className="text-sm">{it?.name ?? "?"}</TableCell>
+                      <TableCell className="text-sm"><ItemLink item={it} /></TableCell>
                       <TableCell className="text-right font-medium text-primary">+{t.qty}</TableCell>
                       <TableCell className="text-xs text-muted-foreground">{t.note || "—"}</TableCell>
                       <TableCell>
@@ -1437,7 +1437,7 @@ function OutgoingView({ items, transactions, setTransactions, armoires, categori
                   return (
                     <TableRow key={t.id}>
                       <TableCell className="text-xs">{t.date}</TableCell>
-                      <TableCell className="text-sm">{it?.name ?? "?"}</TableCell>
+                      <TableCell className="text-sm"><ItemLink item={it} /></TableCell>
                       <TableCell className="text-right font-medium text-destructive">-{t.qty}</TableCell>
                       <TableCell className="text-xs">
                         <Select value={t.armoireId ?? ""} onValueChange={(v) => changeArmoire(t.id, v)}>
@@ -1597,7 +1597,7 @@ function ArmoiresView({ armoires, setArmoires, transactions, setTransactions, it
                 {consumption.map(({ item, qty, total }) => (
                   <TableRow key={item.id}>
                     <TableCell><Badge variant="outline">{item.cat}</Badge></TableCell>
-                    <TableCell className="font-medium">{item.name}</TableCell>
+                    <TableCell className="font-medium"><ItemLink item={item} /></TableCell>
                     <TableCell className="text-xs">{item.ref}</TableCell>
                     <TableCell className="text-right">{qty}</TableCell>
                     <TableCell className="text-right">{fmtPrice(item.unitPrice)}</TableCell>
@@ -2237,7 +2237,7 @@ function PurchaseView({ items, purchases, setPurchases }: any) {
               {rows.map(({ p, item }: any) => (
                 <TableRow key={p.id}>
                   <TableCell><Badge variant="outline">{item.cat}</Badge></TableCell>
-                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <TableCell className="font-medium"><ItemLink item={item} /></TableCell>
                   <TableCell className="text-xs">{item.ref}</TableCell>
                   <TableCell className="text-xs">{item.supplier}</TableCell>
                   <TableCell className="text-right text-sm">{fmtPrice(item.unitPrice)}</TableCell>
