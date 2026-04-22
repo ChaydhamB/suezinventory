@@ -488,18 +488,18 @@ export default function Index() {
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-4">
-            <DashboardView kpi={kpi} items={items} transactions={transactions} computeStock={computeStock} purchases={purchases} setPurchases={setPurchases} />
+            <DashboardView kpi={kpi} items={items} transactions={transactions} computeStock={computeStock} purchases={purchases} setPurchases={setPurchasesM} />
           </TabsContent>
 
           <TabsContent value="stock">
             <StockView
               items={items}
-              setItems={setItems}
+              setItems={setItemsM}
               categories={allCategories}
               computeStock={computeStock}
               requireAdmin={requireAdmin}
               purchases={purchases}
-              setPurchases={setPurchases}
+              setPurchases={setPurchasesM}
             />
           </TabsContent>
 
@@ -507,7 +507,7 @@ export default function Index() {
             <PurchaseView
               items={items}
               purchases={purchases}
-              setPurchases={setPurchases}
+              setPurchases={setPurchasesM}
             />
           </TabsContent>
 
@@ -515,11 +515,11 @@ export default function Index() {
             <IncomingView
               items={items}
               transactions={transactions}
-              setTransactions={setTransactions}
+              setTransactions={setTransactionsM}
               categories={allCategories}
               computeStock={computeStock}
               history={history}
-              setHistory={setHistory}
+              setHistory={setHistoryM}
             />
           </TabsContent>
 
@@ -527,21 +527,21 @@ export default function Index() {
             <OutgoingView
               items={items}
               transactions={transactions}
-              setTransactions={setTransactions}
+              setTransactions={setTransactionsM}
               armoires={armoires}
               categories={allCategories}
               computeStock={computeStock}
               history={history}
-              setHistory={setHistory}
+              setHistory={setHistoryM}
             />
           </TabsContent>
 
           <TabsContent value="armoires">
             <ArmoiresView
               armoires={armoires}
-              setArmoires={setArmoires}
+              setArmoires={setArmoiresM}
               transactions={transactions}
-              setTransactions={setTransactions}
+              setTransactions={setTransactionsM}
               items={items}
               requireAdmin={requireAdmin}
               computeStock={computeStock}
@@ -554,15 +554,15 @@ export default function Index() {
             <CategoriesView
               categories={allCategories}
               customCats={customCats}
-              setCustomCats={setCustomCats}
+              setCustomCats={setCustomCatsM}
               items={items}
-              setItems={setItems}
+              setItems={setItemsM}
               requireAdmin={requireAdmin}
             />
           </TabsContent>
 
           <TabsContent value="history">
-            <HistoryView history={history} setHistory={setHistory} requireAdmin={requireAdmin} />
+            <HistoryView history={history} setHistory={setHistoryM} requireAdmin={requireAdmin} />
           </TabsContent>
         </Tabs>
       </main>
