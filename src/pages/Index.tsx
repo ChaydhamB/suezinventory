@@ -245,14 +245,36 @@ export default function Index() {
   const [purchases, setPurchases] = useState<PurchaseEntry[]>([]);
   const [armoireComponents, setArmoireComponents] = useState<ArmoireComponent[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [stockSearch, setStockSearch] = useState("");
+  const [role, setRole] = useState<"admin" | "viewer" | "loading">("loading");
   // Per-table dirty flags. Local mutations set them true; realtime refresh leaves them false.
-  // This prevents the cross-user "delete-all + reinsert" sync wipe.
   const [dirty, setDirty] = useState({
     items: false, tx: false, armoires: false, cats: false, history: false, purchases: false,
   });
   const markDirty = useCallback((k: keyof typeof dirty) => setDirty((d) => ({ ...d, [k]: true })), []);
   const { require: requireAdmin, Modal: AdminModal } = useAdminGate();
   const navigate = useNavigate();
+
+  // Load current user's role
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setRole("viewer"); return; }
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
+      const roles = (data ?? []).map((r: any) => r.role);
+      setRole(roles.includes("admin") ? "admin" : "viewer");
+    })();
+  }, []);
+
+  const isAdmin = role === "admin";
+  const goToStock = useCallback((search?: string) => {
+    setStockSearch(search ?? "");
+    setActiveTab("stock");
+  }, []);
 
   // Load from cloud (with one-time localStorage migration) + realtime sync
   useEffect(() => {
