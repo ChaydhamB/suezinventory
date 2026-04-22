@@ -597,6 +597,7 @@ export default function Index() {
         </Tabs>
       </main>
     </div>
+    </NavContext.Provider>
   );
 }
 
