@@ -100,6 +100,22 @@ import { Eye, Upload } from "lucide-react";
 /* ------------------------------------------------------------------ */
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
+/** A clickable item label that jumps to the Stock tab pre-filtered to that item. */
+function ItemLink({ item, className = "", children }: { item?: Item | null; className?: string; children?: React.ReactNode }) {
+  const { goToStock } = useNav();
+  if (!item) return <span className={className}>{children ?? "?"}</span>;
+  return (
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); goToStock(item.ref || item.name); }}
+      className={`text-left text-primary underline-offset-2 hover:underline ${className}`}
+      title={`Voir "${item.name}" dans le stock`}
+    >
+      {children ?? item.name}
+    </button>
+  );
+}
+
 function useAdminGate() {
   const [open, setOpen] = useState(false);
   const [pw, setPw] = useState("");
