@@ -362,6 +362,15 @@ export default function Index() {
     [transactions]
   );
 
+  // Marking setters: every local mutation flips the dirty flag for that slice,
+  // so the auto-save effect runs only for local changes (never for realtime echoes).
+  const setItemsM = useCallback((v: React.SetStateAction<Item[]>) => { setItems(v); setDirty((d) => ({ ...d, items: true })); }, []);
+  const setTransactionsM = useCallback((v: React.SetStateAction<Transaction[]>) => { setTransactions(v); setDirty((d) => ({ ...d, tx: true })); }, []);
+  const setArmoiresM = useCallback((v: React.SetStateAction<Armoire[]>) => { setArmoires(v); setDirty((d) => ({ ...d, armoires: true })); }, []);
+  const setCustomCatsM = useCallback((v: React.SetStateAction<string[]>) => { setCustomCats(v); setDirty((d) => ({ ...d, cats: true })); }, []);
+  const setHistoryM = useCallback((v: React.SetStateAction<HistoryEntry[]>) => { setHistory(v); setDirty((d) => ({ ...d, history: true })); }, []);
+  const setPurchasesM = useCallback((v: React.SetStateAction<PurchaseEntry[]>) => { setPurchases(v); setDirty((d) => ({ ...d, purchases: true })); }, []);
+
   /* ---------- KPI ---------- */
   const kpi = useMemo(() => {
     const totalItems = items.length;
