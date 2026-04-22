@@ -1807,7 +1807,7 @@ function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, a
                 return (
                   <TableRow key={c.id} className={rowClass}>
                     <TableCell className="font-medium">
-                      <div>{item.name}</div>
+                      <div><ItemLink item={item} /></div>
                       <div className="text-xs text-muted-foreground">{item.cat}</div>
                     </TableCell>
                     <TableCell className="text-xs">{item.ref}</TableCell>
