@@ -453,6 +453,7 @@ export default function Index() {
   }
 
   return (
+    <NavContext.Provider value={{ goToStock, isAdmin }}>
     <div className="min-h-screen bg-background">
       {AdminModal}
       {/* Header */}
@@ -468,6 +469,10 @@ export default function Index() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Badge variant={isAdmin ? "default" : "secondary"} className="gap-1">
+              {isAdmin ? <Lock className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+              {isAdmin ? "Admin" : "Lecture seule"}
+            </Badge>
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" /> Export Excel
             </Button>
@@ -500,7 +505,14 @@ export default function Index() {
       </header>
 
       <main className="container py-6">
-        <Tabs defaultValue="dashboard" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-8">
+            <TabsTrigger value="dashboard"><LayoutGrid className="mr-1.5 h-4 w-4" />Tableau</TabsTrigger>
+            <TabsTrigger value="stock"><Package className="mr-1.5 h-4 w-4" />Stock</TabsTrigger>
+            <TabsTrigger value="in"><ArrowDownToLine className="mr-1.5 h-4 w-4" />Entrées</TabsTrigger>
+            <TabsTrigger value="out"><ArrowUpFromLine className="mr-1.5 h-4 w-4" />Sorties</TabsTrigger>
+            <TabsTrigger value="purchase"><ShoppingCart className="mr-1.5 h-4 w-4" />Pour achat</TabsTrigger>
+            <TabsTrigger value="armoires"><Box className="mr-1.5 h-4 w-4" />Armoires</TabsTrigger>
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-8">
             <TabsTrigger value="dashboard"><LayoutGrid className="mr-1.5 h-4 w-4" />Tableau</TabsTrigger>
             <TabsTrigger value="stock"><Package className="mr-1.5 h-4 w-4" />Stock</TabsTrigger>
