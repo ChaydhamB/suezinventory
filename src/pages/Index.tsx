@@ -245,7 +245,12 @@ export default function Index() {
   const [purchases, setPurchases] = useState<PurchaseEntry[]>([]);
   const [armoireComponents, setArmoireComponents] = useState<ArmoireComponent[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [savingDisabled, setSavingDisabled] = useState(false);
+  // Per-table dirty flags. Local mutations set them true; realtime refresh leaves them false.
+  // This prevents the cross-user "delete-all + reinsert" sync wipe.
+  const [dirty, setDirty] = useState({
+    items: false, tx: false, armoires: false, cats: false, history: false, purchases: false,
+  });
+  const markDirty = useCallback((k: keyof typeof dirty) => setDirty((d) => ({ ...d, [k]: true })), []);
   const { require: requireAdmin, Modal: AdminModal } = useAdminGate();
   const navigate = useNavigate();
 
@@ -287,7 +292,12 @@ export default function Index() {
             type: t.type,
           });
         });
-        setHistory(missing.length ? [...hi, ...missing] : hi);
+        if (missing.length) {
+          setHistory([...hi, ...missing]);
+          setDirty((d) => ({ ...d, history: true }));
+        } else {
+          setHistory(hi);
+        }
         setLoaded(true);
       } catch (e: any) {
         console.error(e);
@@ -296,29 +306,51 @@ export default function Index() {
       }
     })();
 
-    // Realtime sync across users
+    // Realtime sync — refreshes state without flipping dirty flags, killing the cross-user wipe race.
     const channel = supabase
       .channel("atelier-sync")
       .on("postgres_changes", { event: "*", schema: "public" }, async () => {
         try {
           const { it, tx, ar, hi, ca, pu, co } = await refresh();
-          setSavingDisabled(true);
           setItems(it); setTransactions(tx); setArmoires(ar);
           setHistory(hi); setCustomCats(ca); setPurchases(pu); setArmoireComponents(co);
-          setTimeout(() => setSavingDisabled(false), 100);
         } catch {}
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
 
-  // Persist to cloud
-  useEffect(() => { if (loaded && !savingDisabled) cloudSaveItems(items).catch((e) => toast.error("Sync items: " + e.message)); }, [items, loaded, savingDisabled]);
-  useEffect(() => { if (loaded && !savingDisabled) cloudSaveTransactions(transactions).catch((e) => toast.error("Sync tx: " + e.message)); }, [transactions, loaded, savingDisabled]);
-  useEffect(() => { if (loaded && !savingDisabled) cloudSaveArmoires(armoires).catch((e) => toast.error("Sync armoires: " + e.message)); }, [armoires, loaded, savingDisabled]);
-  useEffect(() => { if (loaded && !savingDisabled) cloudSaveCustomCats(customCats).catch((e) => toast.error("Sync cats: " + e.message)); }, [customCats, loaded, savingDisabled]);
-  useEffect(() => { if (loaded && !savingDisabled) cloudSaveHistory(history).catch((e) => toast.error("Sync history: " + e.message)); }, [history, loaded, savingDisabled]);
-  useEffect(() => { if (loaded && !savingDisabled) cloudSavePurchases(purchases).catch((e) => toast.error("Sync purchases: " + e.message)); }, [purchases, loaded, savingDisabled]);
+  // Persist to cloud — only when this user actually mutated the slice.
+  useEffect(() => {
+    if (!loaded || !dirty.items) return;
+    setDirty((d) => ({ ...d, items: false }));
+    cloudSaveItems(items).catch((e) => toast.error("Sync items: " + e.message));
+  }, [items, loaded, dirty.items]);
+  useEffect(() => {
+    if (!loaded || !dirty.tx) return;
+    setDirty((d) => ({ ...d, tx: false }));
+    cloudSaveTransactions(transactions).catch((e) => toast.error("Sync tx: " + e.message));
+  }, [transactions, loaded, dirty.tx]);
+  useEffect(() => {
+    if (!loaded || !dirty.armoires) return;
+    setDirty((d) => ({ ...d, armoires: false }));
+    cloudSaveArmoires(armoires).catch((e) => toast.error("Sync armoires: " + e.message));
+  }, [armoires, loaded, dirty.armoires]);
+  useEffect(() => {
+    if (!loaded || !dirty.cats) return;
+    setDirty((d) => ({ ...d, cats: false }));
+    cloudSaveCustomCats(customCats).catch((e) => toast.error("Sync cats: " + e.message));
+  }, [customCats, loaded, dirty.cats]);
+  useEffect(() => {
+    if (!loaded || !dirty.history) return;
+    setDirty((d) => ({ ...d, history: false }));
+    cloudSaveHistory(history).catch((e) => toast.error("Sync history: " + e.message));
+  }, [history, loaded, dirty.history]);
+  useEffect(() => {
+    if (!loaded || !dirty.purchases) return;
+    setDirty((d) => ({ ...d, purchases: false }));
+    cloudSavePurchases(purchases).catch((e) => toast.error("Sync purchases: " + e.message));
+  }, [purchases, loaded, dirty.purchases]);
 
   const allCategories = useMemo(() => {
     const fromItems = Array.from(new Set(items.map((i) => i.cat)));
@@ -329,6 +361,15 @@ export default function Index() {
     (item: Item) => computeStockUtil(item, transactions),
     [transactions]
   );
+
+  // Marking setters: every local mutation flips the dirty flag for that slice,
+  // so the auto-save effect runs only for local changes (never for realtime echoes).
+  const setItemsM = useCallback((v: React.SetStateAction<Item[]>) => { setItems(v); setDirty((d) => ({ ...d, items: true })); }, []);
+  const setTransactionsM = useCallback((v: React.SetStateAction<Transaction[]>) => { setTransactions(v); setDirty((d) => ({ ...d, tx: true })); }, []);
+  const setArmoiresM = useCallback((v: React.SetStateAction<Armoire[]>) => { setArmoires(v); setDirty((d) => ({ ...d, armoires: true })); }, []);
+  const setCustomCatsM = useCallback((v: React.SetStateAction<string[]>) => { setCustomCats(v); setDirty((d) => ({ ...d, cats: true })); }, []);
+  const setHistoryM = useCallback((v: React.SetStateAction<HistoryEntry[]>) => { setHistory(v); setDirty((d) => ({ ...d, history: true })); }, []);
+  const setPurchasesM = useCallback((v: React.SetStateAction<PurchaseEntry[]>) => { setPurchases(v); setDirty((d) => ({ ...d, purchases: true })); }, []);
 
   /* ---------- KPI ---------- */
   const kpi = useMemo(() => {
@@ -361,11 +402,11 @@ export default function Index() {
         const seedMod: any = await import("@/data/seed.json");
         const seedItems = seedMod.default.items as Item[];
         const seedHist = seedMod.default.history as HistoryEntry[];
-        setItems(seedItems);
-        setTransactions([]);
-        setCustomCats([]);
-        setHistory(seedHist);
-        setPurchases([]);
+        setItemsM(seedItems);
+        setTransactionsM([]);
+        setCustomCatsM([]);
+        setHistoryM(seedHist);
+        setPurchasesM([]);
         toast.success("Données réinitialisées au catalogue d'origine.");
       } catch (e: any) {
         toast.error("Échec reset: " + e.message);
@@ -447,18 +488,18 @@ export default function Index() {
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-4">
-            <DashboardView kpi={kpi} items={items} transactions={transactions} computeStock={computeStock} purchases={purchases} setPurchases={setPurchases} />
+            <DashboardView kpi={kpi} items={items} transactions={transactions} computeStock={computeStock} purchases={purchases} setPurchases={setPurchasesM} />
           </TabsContent>
 
           <TabsContent value="stock">
             <StockView
               items={items}
-              setItems={setItems}
+              setItems={setItemsM}
               categories={allCategories}
               computeStock={computeStock}
               requireAdmin={requireAdmin}
               purchases={purchases}
-              setPurchases={setPurchases}
+              setPurchases={setPurchasesM}
             />
           </TabsContent>
 
@@ -466,7 +507,7 @@ export default function Index() {
             <PurchaseView
               items={items}
               purchases={purchases}
-              setPurchases={setPurchases}
+              setPurchases={setPurchasesM}
             />
           </TabsContent>
 
@@ -474,11 +515,11 @@ export default function Index() {
             <IncomingView
               items={items}
               transactions={transactions}
-              setTransactions={setTransactions}
+              setTransactions={setTransactionsM}
               categories={allCategories}
               computeStock={computeStock}
               history={history}
-              setHistory={setHistory}
+              setHistory={setHistoryM}
             />
           </TabsContent>
 
@@ -486,21 +527,21 @@ export default function Index() {
             <OutgoingView
               items={items}
               transactions={transactions}
-              setTransactions={setTransactions}
+              setTransactions={setTransactionsM}
               armoires={armoires}
               categories={allCategories}
               computeStock={computeStock}
               history={history}
-              setHistory={setHistory}
+              setHistory={setHistoryM}
             />
           </TabsContent>
 
           <TabsContent value="armoires">
             <ArmoiresView
               armoires={armoires}
-              setArmoires={setArmoires}
+              setArmoires={setArmoiresM}
               transactions={transactions}
-              setTransactions={setTransactions}
+              setTransactions={setTransactionsM}
               items={items}
               requireAdmin={requireAdmin}
               computeStock={computeStock}
@@ -513,15 +554,15 @@ export default function Index() {
             <CategoriesView
               categories={allCategories}
               customCats={customCats}
-              setCustomCats={setCustomCats}
+              setCustomCats={setCustomCatsM}
               items={items}
-              setItems={setItems}
+              setItems={setItemsM}
               requireAdmin={requireAdmin}
             />
           </TabsContent>
 
           <TabsContent value="history">
-            <HistoryView history={history} setHistory={setHistory} requireAdmin={requireAdmin} />
+            <HistoryView history={history} setHistory={setHistoryM} requireAdmin={requireAdmin} />
           </TabsContent>
         </Tabs>
       </main>
