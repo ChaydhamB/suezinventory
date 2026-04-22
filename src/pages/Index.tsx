@@ -1650,11 +1650,388 @@ function ArmoiresView({ armoires, setArmoires, transactions, setTransactions, it
 /*  Armoire Components Panel — assigned + actual + availability        */
 /* ------------------------------------------------------------------ */
 function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, armoireComponents, setArmoireComponents, requireAdmin }: any) {
-  const [adding, setAdding] = useState(false);
-  const [newItemId, setNewItemId] = useState("");
-  const [newReq, setNewReq] = useState("1");
-  const [newAct, setNewAct] = useState("0");
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [bulkSearch, setBulkSearch] = useState("");
+  // qty per item id used in the bulk dialog (string for input control)
+  const [bulkQty, setBulkQty] = useState<Record<string, string>>({});
+  const csvInputRef = React.useRef<HTMLInputElement>(null);
+
+  const list = useMemo(
+    () => armoireComponents
+      .filter((c: ArmoireComponent) => c.armoireId === armoireId)
+      .map((c: ArmoireComponent) => ({ c, item: items.find((i: Item) => i.id === c.itemId) }))
+      .filter((x: any) => x.item),
+    [armoireComponents, armoireId, items]
+  );
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return list;
+    return list.filter(({ item }: any) =>
+      item.name.toLowerCase().includes(q) || (item.ref ?? "").toLowerCase().includes(q)
+    );
+  }, [list, search]);
+
+  const updateField = async (comp: ArmoireComponent, patch: Partial<ArmoireComponent>) => {
+    const next = { ...comp, ...patch };
+    try {
+      const saved = await cloudUpsertArmoireComponent(next);
+      setArmoireComponents((prev: ArmoireComponent[]) =>
+        prev.map((c) => (c.id === comp.id ? { ...next, id: saved.id } : c))
+      );
+    } catch (e: any) {
+      toast.error("Erreur: " + e.message);
+    }
+  };
+
+  // ---------- Bulk add table ----------
+  const bulkRows = useMemo(() => {
+    const q = bulkSearch.trim().toLowerCase();
+    return (items as Item[]).filter((i) => {
+      if (!q) return true;
+      return i.name.toLowerCase().includes(q) || (i.ref ?? "").toLowerCase().includes(q);
+    });
+  }, [items, bulkSearch]);
+
+  const existingByItem = useMemo(() => {
+    const m = new Map<string, ArmoireComponent>();
+    list.forEach(({ c }: any) => m.set(c.itemId, c));
+    return m;
+  }, [list]);
+
+  const submitBulk = async () => {
+    const entries = Object.entries(bulkQty)
+      .map(([itemId, qStr]) => ({ itemId, qty: parseInt(qStr) || 0 }))
+      .filter((e) => e.qty > 0);
+    if (entries.length === 0) {
+      toast.error("Saisissez au moins une quantité.");
+      return;
+    }
+    let added = 0, updated = 0, errors = 0;
+    for (const { itemId, qty } of entries) {
+      const existing = existingByItem.get(itemId);
+      try {
+        const saved = await cloudUpsertArmoireComponent({
+          id: existing?.id,
+          armoireId,
+          itemId,
+          requiredQty: qty,
+          actualQty: existing?.actualQty ?? 0,
+        });
+        setArmoireComponents((prev: ArmoireComponent[]) => {
+          const idx = prev.findIndex((c) => c.id === saved.id);
+          const next = { id: saved.id, armoireId, itemId, requiredQty: qty, actualQty: existing?.actualQty ?? 0 };
+          if (idx >= 0) { const cp = [...prev]; cp[idx] = next; return cp; }
+          return [...prev, next];
+        });
+        existing ? updated++ : added++;
+      } catch {
+        errors++;
+      }
+    }
+    toast.success(`${added} ajouté(s), ${updated} mis à jour${errors ? `, ${errors} erreur(s)` : ""}.`);
+    setBulkQty({});
+    setBulkSearch("");
+    setBulkOpen(false);
+  };
+
+  // ---------- CSV import ----------
+  const normalize = (s: any) => String(s ?? "").trim().toLowerCase().replace(/\s+/g, "");
+  const handleCsvImport = async (file: File) => {
+    try {
+      const rows = await parseSheetFile(file);
+      // Build lookup maps from items
+      const byRef = new Map<string, Item>();
+      const byName = new Map<string, Item>();
+      (items as Item[]).forEach((i) => {
+        if (i.ref) byRef.set(normalize(i.ref), i);
+        if (i.name) byName.set(normalize(i.name), i);
+      });
+      let matched = 0, skipped = 0, addedOrUpdated = 0;
+      const skippedList: string[] = [];
+      for (const row of rows) {
+        // Accept various header spellings
+        const ref = row.reference ?? row.référence ?? row.ref ?? row.Référence ?? row.Reference ?? row.REF ?? "";
+        const desig = row.designation ?? row.désignation ?? row.name ?? row.Désignation ?? row.Designation ?? row.nom ?? "";
+        const qty = parseInt(String(row.quantity ?? row.quantité ?? row.qty ?? row.Quantité ?? row.Quantity ?? 0)) || 0;
+        if (qty <= 0) { skipped++; continue; }
+        let item = byRef.get(normalize(ref)) || byName.get(normalize(desig)) || null;
+        if (!item) { skipped++; if (skippedList.length < 5) skippedList.push(`${desig || ref}`); continue; }
+        matched++;
+        const existing = existingByItem.get(item.id);
+        try {
+          const saved = await cloudUpsertArmoireComponent({
+            id: existing?.id,
+            armoireId,
+            itemId: item.id,
+            requiredQty: qty,
+            actualQty: existing?.actualQty ?? 0,
+          });
+          setArmoireComponents((prev: ArmoireComponent[]) => {
+            const idx = prev.findIndex((c) => c.id === saved.id);
+            const next = { id: saved.id, armoireId, itemId: item!.id, requiredQty: qty, actualQty: existing?.actualQty ?? 0 };
+            if (idx >= 0) { const cp = [...prev]; cp[idx] = next; return cp; }
+            return [...prev, next];
+          });
+          addedOrUpdated++;
+        } catch {}
+      }
+      toast.success(
+        `Import: ${addedOrUpdated} composant(s). ${skipped} ligne(s) ignorée(s)${skippedList.length ? ` (ex.: ${skippedList.join(", ")})` : ""}.`
+      );
+    } catch (e: any) {
+      toast.error("Échec import: " + e.message);
+    }
+  };
+
+  const remove = (comp: ArmoireComponent) => {
+    requireAdmin(async () => {
+      if (!comp.id) return;
+      try {
+        await cloudDeleteArmoireComponent(comp.id);
+        setArmoireComponents((prev: ArmoireComponent[]) => prev.filter((c) => c.id !== comp.id));
+        toast.success("Composant retiré.");
+      } catch (e: any) {
+        toast.error("Erreur: " + e.message);
+      }
+    });
+  };
+
+  const stats = useMemo(() => {
+    let ok = 0, missing = 0, low = 0;
+    list.forEach(({ c, item }: any) => {
+      if (c.actualQty >= c.requiredQty) ok++;
+      else if (c.actualQty === 0) missing++;
+      else low++;
+    });
+    return { ok, missing, low, total: list.length };
+  }, [list]);
+
+  const exportArmoire = () => {
+    const rows = list.map(({ c, item }: any) => {
+      const stock = computeStock(item);
+      const need = Math.max(0, c.requiredQty - c.actualQty);
+      return {
+        Catégorie: item.cat,
+        Désignation: item.name,
+        Référence: item.ref,
+        Requis: c.requiredQty,
+        Présent: c.actualQty,
+        "À compléter": need,
+        "Stock magasin": stock,
+        Disponible: stock >= need ? "Oui" : "Non",
+        État: c.actualQty >= c.requiredQty ? "OK" : c.actualQty === 0 ? "Manquant" : "Partiel",
+      };
+    });
+    exportRowsXLSX(rows, armoireName, `Armoire_${armoireName.replace(/\s+/g, "_")}`);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <CardTitle>Composants assignés — {armoireName}</CardTitle>
+            <CardDescription>
+              Définissez les composants requis et la quantité réellement présente dans l'armoire.
+            </CardDescription>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline" className="bg-primary/10">{stats.total} composants</Badge>
+            <Badge className="bg-green-500/15 text-green-700 dark:text-green-400">OK: {stats.ok}</Badge>
+            <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">Partiel: {stats.low}</Badge>
+            <Badge className="bg-destructive/15 text-destructive">Manquant: {stats.missing}</Badge>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            placeholder="Rechercher un composant…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-xs"
+          />
+          <Button size="sm" onClick={() => { setBulkQty({}); setBulkOpen(true); }}>
+            <Plus className="mr-1 h-4 w-4" /> Ajouter / modifier composants
+          </Button>
+          <input
+            ref={csvInputRef}
+            type="file"
+            accept=".csv,.xlsx"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleCsvImport(f);
+              e.target.value = "";
+            }}
+          />
+          <Button size="sm" variant="outline" onClick={() => csvInputRef.current?.click()}>
+            <Upload className="mr-1 h-4 w-4" /> Importer CSV/XLSX
+          </Button>
+          <Button size="sm" variant="outline" onClick={exportArmoire}>
+            <Download className="mr-1 h-4 w-4" /> Exporter cette armoire
+          </Button>
+        </div>
+
+        {filtered.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-6 text-center">
+            Aucun composant assigné. Cliquez sur "Ajouter / modifier composants" pour commencer.
+          </p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Article</TableHead>
+                <TableHead>Référence</TableHead>
+                <TableHead className="text-right">Requis</TableHead>
+                <TableHead className="text-right">Présent</TableHead>
+                <TableHead className="text-right">Stock magasin</TableHead>
+                <TableHead>État</TableHead>
+                <TableHead>Disponibilité</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map(({ c, item }: any) => {
+                const stock = computeStock(item);
+                let rowClass = "";
+                let etat: { label: string; className: string };
+                if (c.actualQty >= c.requiredQty) {
+                  etat = { label: "OK", className: "bg-green-500/15 text-green-700 dark:text-green-400" };
+                  rowClass = "bg-green-500/5";
+                } else if (c.actualQty === 0) {
+                  etat = { label: "Manquant", className: "bg-destructive/15 text-destructive" };
+                  rowClass = "bg-destructive/5";
+                } else {
+                  etat = { label: "Partiel", className: "bg-amber-500/15 text-amber-700 dark:text-amber-400" };
+                  rowClass = "bg-amber-500/5";
+                }
+                const need = Math.max(0, c.requiredQty - c.actualQty);
+                const dispo = stock >= need
+                  ? { label: stock > 0 ? "Disponible en stock" : "OK", className: "bg-green-500/15 text-green-700 dark:text-green-400" }
+                  : { label: `Manque ${need - stock} en magasin`, className: "bg-destructive/15 text-destructive" };
+                return (
+                  <TableRow key={c.id} className={rowClass}>
+                    <TableCell className="font-medium">
+                      <div><ItemLink item={item} /></div>
+                      <div className="text-xs text-muted-foreground">{item.cat}</div>
+                    </TableCell>
+                    <TableCell className="text-xs">{item.ref}</TableCell>
+                    <TableCell className="text-right">
+                      <Input
+                        type="number"
+                        min={0}
+                        value={c.requiredQty}
+                        onChange={(e) => updateField(c, { requiredQty: parseInt(e.target.value) || 0 })}
+                        className="h-8 w-20 text-right ml-auto"
+                      />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Input
+                        type="number"
+                        min={0}
+                        value={c.actualQty}
+                        onChange={(e) => updateField(c, { actualQty: parseInt(e.target.value) || 0 })}
+                        className="h-8 w-20 text-right ml-auto"
+                      />
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">{stock}</TableCell>
+                    <TableCell><Badge className={etat.className}>{etat.label}</Badge></TableCell>
+                    <TableCell><Badge className={dispo.className}>{dispo.label}</Badge></TableCell>
+                    <TableCell>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(c)}>
+                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+
+      {/* Bulk add/modify dialog */}
+      <Dialog open={bulkOpen} onOpenChange={setBulkOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Composer "{armoireName}"</DialogTitle>
+            <DialogDescription>
+              Saisissez la quantité requise pour chaque article (laissez vide pour ignorer).
+              Le stock magasin actuel est affiché à droite.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Input
+              placeholder="Rechercher un article…"
+              value={bulkSearch}
+              onChange={(e) => setBulkSearch(e.target.value)}
+            />
+            <div className="max-h-[60vh] overflow-y-auto rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Article</TableHead>
+                    <TableHead>Référence</TableHead>
+                    <TableHead className="text-right">Stock</TableHead>
+                    <TableHead className="text-right">Déjà</TableHead>
+                    <TableHead className="text-right w-32">Requis</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {bulkRows.map((i: Item) => {
+                    const stock = computeStock(i);
+                    const existing = existingByItem.get(i.id);
+                    return (
+                      <TableRow key={i.id}>
+                        <TableCell className="font-medium text-sm">
+                          <div>{i.name}</div>
+                          <div className="text-xs text-muted-foreground">{i.cat}</div>
+                        </TableCell>
+                        <TableCell className="text-xs">{i.ref}</TableCell>
+                        <TableCell className="text-right">
+                          <Badge variant={stock <= 0 ? "destructive" : "secondary"}>{stock}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right text-xs text-muted-foreground">
+                          {existing ? existing.requiredQty : "—"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Input
+                            type="number"
+                            min={0}
+                            placeholder={existing ? String(existing.requiredQty) : "0"}
+                            value={bulkQty[i.id] ?? ""}
+                            onChange={(e) =>
+                              setBulkQty((p) => ({ ...p, [i.id]: e.target.value }))
+                            }
+                            className="h-8 w-24 text-right ml-auto"
+                          />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {bulkRows.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="py-6 text-center text-sm text-muted-foreground">
+                        Aucun article correspondant.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkOpen(false)}>Annuler</Button>
+            <Button onClick={submitBulk}>Appliquer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}
 
   const list = useMemo(
     () => armoireComponents
