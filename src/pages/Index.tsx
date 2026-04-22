@@ -292,7 +292,12 @@ export default function Index() {
             type: t.type,
           });
         });
-        setHistory(missing.length ? [...hi, ...missing] : hi);
+        if (missing.length) {
+          setHistory([...hi, ...missing]);
+          setDirty((d) => ({ ...d, history: true }));
+        } else {
+          setHistory(hi);
+        }
         setLoaded(true);
       } catch (e: any) {
         console.error(e);
