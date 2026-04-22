@@ -530,6 +530,8 @@ export default function Index() {
               requireAdmin={requireAdmin}
               purchases={purchases}
               setPurchases={setPurchasesM}
+              initialSearch={stockSearch}
+              onConsumeInitialSearch={() => setStockSearch("")}
             />
           </TabsContent>
 
