@@ -94,6 +94,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { exportRowsXLSX, parseSheetFile } from "@/lib/exportSheet";
 import { NavContext, useNav } from "@/lib/navContext";
 import { Eye, Upload } from "lucide-react";
+import { ArmoireSketch } from "@/components/ArmoireSketch";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
