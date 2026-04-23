@@ -108,7 +108,33 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --brand: 217 91% 60%;
+    --brand-glow: 199 89% 60%;
+    --gradient-header: linear-gradient(135deg, hsl(var(--brand)) 0%, hsl(var(--brand-glow)) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%);
+    --shadow-soft: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 8px 32px -8px hsl(var(--brand-glow) / 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer utilities {
+  .bg-gradient-header { background: var(--gradient-header); }
+  .bg-gradient-subtle { background: var(--gradient-subtle); }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .transition-smooth { transition: var(--transition-smooth); }
+  .hover-lift { transition: var(--transition-smooth); }
+  .hover-lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-soft); }
 }
