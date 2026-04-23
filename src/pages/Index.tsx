@@ -647,15 +647,23 @@ function StatCard({ label, value, icon, sub, tone = "default" }: any) {
     warn: "bg-destructive/5 border-destructive/30",
     good: "bg-primary/5 border-primary/30",
   };
+  const iconTones: Record<string, string> = {
+    default: "bg-gradient-header text-primary-foreground",
+    warn: "bg-destructive/15 text-destructive",
+    good: "bg-primary/15 text-primary",
+  };
   return (
-    <Card className={tones[tone] || ""}>
+    <Card className={`${tones[tone] || ""} hover-lift overflow-hidden relative`}>
+      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-header opacity-60" />
       <CardContent className="flex items-center justify-between p-5">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
           <p className="mt-1 text-2xl font-bold">{value}</p>
           {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
         </div>
-        <div className="text-muted-foreground">{icon}</div>
+        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconTones[tone] || iconTones.default}`}>
+          {icon}
+        </div>
       </CardContent>
     </Card>
   );
