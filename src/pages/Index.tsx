@@ -491,14 +491,14 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       {AdminModal}
       {/* Header */}
-      <header className="border-b bg-card shadow-soft sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-card/85">
+      <header className="border-b bg-card/95 backdrop-blur sticky top-0 z-30">
         <div className="container flex flex-wrap items-center justify-between gap-3 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-header text-primary-foreground shadow-glow transition-smooth hover:scale-105">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-smooth hover:opacity-90">
               <Warehouse className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-lg font-bold tracking-tight">Atelier Stock</h1>
+              <h1 className="text-lg font-semibold tracking-tight">Atelier Stock</h1>
               <p className="text-xs text-muted-foreground">Gestion complète d'inventaire — Sfax</p>
             </div>
           </div>
