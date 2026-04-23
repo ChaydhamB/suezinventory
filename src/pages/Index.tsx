@@ -2445,10 +2445,10 @@ function PurchaseView({ items, purchases, setPurchases, computeStock }: any) {
                     </Button>
                   </TableCell>
                 </TableRow>
-              ))}
+              );})}
               {rows.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={9} className="py-10 text-center text-muted-foreground">
+                  <TableCell colSpan={10} className="py-10 text-center text-muted-foreground">
                     Aucun article. Cliquez sur l'icône panier dans le Stock pour ajouter.
                   </TableCell>
                 </TableRow>
