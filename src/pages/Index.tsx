@@ -2407,13 +2407,18 @@ function PurchaseView({ items, purchases, setPurchases, computeStock }: any) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map(({ p, item }: any) => (
+              {rows.map(({ p, item }: any) => {
+                const stock = computeStock ? computeStock(item) : item.stock;
+                return (
                 <TableRow key={p.id}>
                   <TableCell><Badge variant="outline">{item.cat}</Badge></TableCell>
                   <TableCell className="font-medium"><ItemLink item={item} /></TableCell>
                   <TableCell className="text-xs">{item.ref}</TableCell>
                   <TableCell className="text-xs">{item.supplier}</TableCell>
                   <TableCell className="text-right text-sm">{fmtPrice(item.unitPrice)}</TableCell>
+                  <TableCell className="text-right">
+                    <Badge variant={stock <= 0 ? "destructive" : "secondary"}>{stock}</Badge>
+                  </TableCell>
                   <TableCell>
                     <Input
                       type="number"
