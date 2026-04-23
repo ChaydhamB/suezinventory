@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   ADMIN_PASSWORD,
   Armoire,
@@ -317,8 +317,25 @@ export default function Index() {
         setItems(it); setTransactions(tx); setArmoires(ar);
         setCustomCats(ca); setPurchases(pu); setArmoireComponents(co);
 
+        // Dedupe history entries (by txId, or by date+desig+qty+time signature)
+        const seenTx = new Set<string>();
+        const seenSig = new Set<string>();
+        const dedupedHi: HistoryEntry[] = [];
+        for (const h of hi) {
+          if (h.txId) {
+            if (seenTx.has(h.txId)) continue;
+            seenTx.add(h.txId);
+          } else {
+            const sig = `${h.date}|${h.time ?? ""}|${h.desig}|${h.qty}|${h.ref ?? ""}`;
+            if (seenSig.has(sig)) continue;
+            seenSig.add(sig);
+          }
+          dedupedHi.push(h);
+        }
+        const removedDup = hi.length - dedupedHi.length;
+
         // Backfill: ensure every transaction has a matching history entry
-        const existingTxIds = new Set(hi.filter((h) => h.txId).map((h) => h.txId));
+        const existingTxIds = new Set(dedupedHi.filter((h) => h.txId).map((h) => h.txId));
         const missing: HistoryEntry[] = [];
         tx.forEach((t) => {
           if (existingTxIds.has(t.id)) return;
@@ -333,11 +350,11 @@ export default function Index() {
             type: t.type,
           });
         });
-        if (missing.length) {
-          setHistory([...hi, ...missing]);
+        if (missing.length || removedDup > 0) {
+          setHistory([...dedupedHi, ...missing]);
           setDirty((d) => ({ ...d, history: true }));
         } else {
-          setHistory(hi);
+          setHistory(dedupedHi);
         }
         setLoaded(true);
       } catch (e: any) {
@@ -556,6 +573,7 @@ export default function Index() {
               items={items}
               purchases={purchases}
               setPurchases={setPurchasesM}
+              computeStock={computeStock}
             />
           </TabsContent>
 
@@ -1655,7 +1673,7 @@ function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, a
   const [bulkSearch, setBulkSearch] = useState("");
   // qty per item id used in the bulk dialog (string for input control)
   const [bulkQty, setBulkQty] = useState<Record<string, string>>({});
-  const csvInputRef = React.useRef<HTMLInputElement>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   const list = useMemo(
     () => armoireComponents
@@ -2033,228 +2051,6 @@ function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, a
   );
 }
 
-
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return list;
-    return list.filter(({ item }: any) =>
-      item.name.toLowerCase().includes(q) || (item.ref ?? "").toLowerCase().includes(q)
-    );
-  }, [list, search]);
-
-  const availableItems = useMemo(
-    () => items.filter((i: Item) => !list.some((x: any) => x.item.id === i.id)),
-    [items, list]
-  );
-
-  const updateField = async (comp: ArmoireComponent, patch: Partial<ArmoireComponent>) => {
-    const next = { ...comp, ...patch };
-    try {
-      const saved = await cloudUpsertArmoireComponent(next);
-      setArmoireComponents((prev: ArmoireComponent[]) =>
-        prev.map((c) => (c.id === comp.id ? { ...next, id: saved.id } : c))
-      );
-    } catch (e: any) {
-      toast.error("Erreur: " + e.message);
-    }
-  };
-
-  const addComponent = async () => {
-    if (!newItemId) return toast.error("Choisissez un article.");
-    const req = parseInt(newReq) || 0;
-    const act = parseInt(newAct) || 0;
-    try {
-      const saved = await cloudUpsertArmoireComponent({
-        armoireId,
-        itemId: newItemId,
-        requiredQty: req,
-        actualQty: act,
-      });
-      setArmoireComponents((prev: ArmoireComponent[]) => [
-        ...prev,
-        { id: saved.id, armoireId, itemId: newItemId, requiredQty: req, actualQty: act },
-      ]);
-      setNewItemId(""); setNewReq("1"); setNewAct("0"); setAdding(false);
-      toast.success("Composant ajouté.");
-    } catch (e: any) {
-      toast.error("Erreur: " + e.message);
-    }
-  };
-
-  const remove = (comp: ArmoireComponent) => {
-    requireAdmin(async () => {
-      if (!comp.id) return;
-      try {
-        await cloudDeleteArmoireComponent(comp.id);
-        setArmoireComponents((prev: ArmoireComponent[]) => prev.filter((c) => c.id !== comp.id));
-        toast.success("Composant retiré.");
-      } catch (e: any) {
-        toast.error("Erreur: " + e.message);
-      }
-    });
-  };
-
-  const stats = useMemo(() => {
-    let ok = 0, missing = 0, low = 0;
-    list.forEach(({ c, item }: any) => {
-      const stock = computeStock(item);
-      if (c.actualQty >= c.requiredQty) ok++;
-      else if (c.actualQty === 0) missing++;
-      else low++;
-    });
-    return { ok, missing, low, total: list.length };
-  }, [list, computeStock]);
-
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <CardTitle>Composants assignés — {armoireName}</CardTitle>
-            <CardDescription>
-              Définissez les composants requis et la quantité réellement présente dans l'armoire.
-            </CardDescription>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="bg-primary/10">{stats.total} composants</Badge>
-            <Badge className="bg-green-500/15 text-green-700 dark:text-green-400">OK: {stats.ok}</Badge>
-            <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">Partiel: {stats.low}</Badge>
-            <Badge className="bg-destructive/15 text-destructive">Manquant: {stats.missing}</Badge>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <Input
-            placeholder="Rechercher un composant…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-xs"
-          />
-          <Button size="sm" onClick={() => setAdding(true)}>
-            <Plus className="mr-1 h-4 w-4" /> Ajouter un composant
-          </Button>
-        </div>
-
-        {filtered.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-6 text-center">
-            Aucun composant assigné. Cliquez sur "Ajouter un composant" pour commencer.
-          </p>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Article</TableHead>
-                <TableHead>Référence</TableHead>
-                <TableHead className="text-right">Requis</TableHead>
-                <TableHead className="text-right">Présent</TableHead>
-                <TableHead className="text-right">Stock magasin</TableHead>
-                <TableHead>État</TableHead>
-                <TableHead>Disponibilité</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map(({ c, item }: any) => {
-                const stock = computeStock(item);
-                const ratio = c.requiredQty > 0 ? c.actualQty / c.requiredQty : 1;
-                let rowClass = "";
-                let etat: { label: string; className: string };
-                if (c.actualQty >= c.requiredQty) {
-                  etat = { label: "OK", className: "bg-green-500/15 text-green-700 dark:text-green-400" };
-                  rowClass = "bg-green-500/5";
-                } else if (c.actualQty === 0) {
-                  etat = { label: "Manquant", className: "bg-destructive/15 text-destructive" };
-                  rowClass = "bg-destructive/5";
-                } else {
-                  etat = { label: "Partiel", className: "bg-amber-500/15 text-amber-700 dark:text-amber-400" };
-                  rowClass = "bg-amber-500/5";
-                }
-                const need = Math.max(0, c.requiredQty - c.actualQty);
-                const dispo = stock >= need
-                  ? { label: stock > 0 ? "Disponible en stock" : "OK", className: "bg-green-500/15 text-green-700 dark:text-green-400" }
-                  : { label: `Manque ${need - stock} en magasin`, className: "bg-destructive/15 text-destructive" };
-                return (
-                  <TableRow key={c.id} className={rowClass}>
-                    <TableCell className="font-medium">
-                      <div><ItemLink item={item} /></div>
-                      <div className="text-xs text-muted-foreground">{item.cat}</div>
-                    </TableCell>
-                    <TableCell className="text-xs">{item.ref}</TableCell>
-                    <TableCell className="text-right">
-                      <Input
-                        type="number"
-                        min={0}
-                        value={c.requiredQty}
-                        onChange={(e) => updateField(c, { requiredQty: parseInt(e.target.value) || 0 })}
-                        className="h-8 w-20 text-right ml-auto"
-                      />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Input
-                        type="number"
-                        min={0}
-                        value={c.actualQty}
-                        onChange={(e) => updateField(c, { actualQty: parseInt(e.target.value) || 0 })}
-                        className="h-8 w-20 text-right ml-auto"
-                      />
-                    </TableCell>
-                    <TableCell className="text-right font-semibold">{stock}</TableCell>
-                    <TableCell><Badge className={etat.className}>{etat.label}</Badge></TableCell>
-                    <TableCell><Badge className={dispo.className}>{dispo.label}</Badge></TableCell>
-                    <TableCell>
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => remove(c)}>
-                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        )}
-      </CardContent>
-
-      <Dialog open={adding} onOpenChange={setAdding}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Ajouter un composant à {armoireName}</DialogTitle>
-            <DialogDescription>Choisissez l'article et indiquez les quantités.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div>
-              <Label>Article</Label>
-              <Select value={newItemId} onValueChange={setNewItemId}>
-                <SelectTrigger><SelectValue placeholder="Choisir un article…" /></SelectTrigger>
-                <SelectContent>
-                  {availableItems.map((i: Item) => (
-                    <SelectItem key={i.id} value={i.id}>{i.name} {i.ref ? `(${i.ref})` : ""}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Quantité requise</Label>
-                <Input type="number" min={0} value={newReq} onChange={(e) => setNewReq(e.target.value)} />
-              </div>
-              <div>
-                <Label>Quantité présente</Label>
-                <Input type="number" min={0} value={newAct} onChange={(e) => setNewAct(e.target.value)} />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAdding(false)}>Annuler</Button>
-            <Button onClick={addComponent}>Ajouter</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Card>
-  );
-}
-
-
 /* ------------------------------------------------------------------ */
 function CategoriesView({ categories, customCats, setCustomCats, items, setItems, requireAdmin }: any) {
   const [name, setName] = useState("");
@@ -2549,7 +2345,7 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
 /* ------------------------------------------------------------------ */
 /*  Purchase List                                                      */
 /* ------------------------------------------------------------------ */
-function PurchaseView({ items, purchases, setPurchases }: any) {
+function PurchaseView({ items, purchases, setPurchases, computeStock }: any) {
   const rows = purchases
     .map((p: PurchaseEntry) => ({ p, item: items.find((i: Item) => i.id === p.itemId) }))
     .filter((r: any) => r.item);
@@ -2583,9 +2379,32 @@ function PurchaseView({ items, purchases, setPurchases }: any) {
             {rows.length} article(s) à acheter · Total estimé : {fmtPrice(totalCost)}
           </CardDescription>
         </div>
-        <Button variant="outline" size="sm" onClick={clearAll} disabled={rows.length === 0}>
-          <Trash2 className="mr-1.5 h-4 w-4" /> Vider la liste
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const data = rows.map(({ p, item }: any) => ({
+                Catégorie: item.cat,
+                Désignation: item.name,
+                Référence: item.ref,
+                Fournisseur: item.supplier,
+                "Prix unitaire": item.unitPrice,
+                Quantité: p.qty,
+                "Stock actuel": computeStock ? computeStock(item) : item.stock,
+                "Coût total": p.qty * item.unitPrice,
+                Note: p.note ?? "",
+              }));
+              exportRowsXLSX(data, "Pour achat", "Pour_achat");
+            }}
+            disabled={rows.length === 0}
+          >
+            <Download className="mr-1.5 h-4 w-4" /> Exporter Excel
+          </Button>
+          <Button variant="outline" size="sm" onClick={clearAll} disabled={rows.length === 0}>
+            <Trash2 className="mr-1.5 h-4 w-4" /> Vider la liste
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto rounded-md border">
@@ -2597,6 +2416,7 @@ function PurchaseView({ items, purchases, setPurchases }: any) {
                 <TableHead>Référence</TableHead>
                 <TableHead>Fournisseur</TableHead>
                 <TableHead className="text-right">Prix unit.</TableHead>
+                <TableHead className="text-right">Stock</TableHead>
                 <TableHead className="w-32 text-center">Quantité</TableHead>
                 <TableHead className="text-right">Coût total</TableHead>
                 <TableHead>Note</TableHead>
@@ -2604,13 +2424,18 @@ function PurchaseView({ items, purchases, setPurchases }: any) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map(({ p, item }: any) => (
+              {rows.map(({ p, item }: any) => {
+                const stock = computeStock ? computeStock(item) : item.stock;
+                return (
                 <TableRow key={p.id}>
                   <TableCell><Badge variant="outline">{item.cat}</Badge></TableCell>
                   <TableCell className="font-medium"><ItemLink item={item} /></TableCell>
                   <TableCell className="text-xs">{item.ref}</TableCell>
                   <TableCell className="text-xs">{item.supplier}</TableCell>
                   <TableCell className="text-right text-sm">{fmtPrice(item.unitPrice)}</TableCell>
+                  <TableCell className="text-right">
+                    <Badge variant={stock <= 0 ? "destructive" : "secondary"}>{stock}</Badge>
+                  </TableCell>
                   <TableCell>
                     <Input
                       type="number"
@@ -2637,10 +2462,10 @@ function PurchaseView({ items, purchases, setPurchases }: any) {
                     </Button>
                   </TableCell>
                 </TableRow>
-              ))}
+              );})}
               {rows.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={9} className="py-10 text-center text-muted-foreground">
+                  <TableCell colSpan={10} className="py-10 text-center text-muted-foreground">
                     Aucun article. Cliquez sur l'icône panier dans le Stock pour ajouter.
                   </TableCell>
                 </TableRow>
