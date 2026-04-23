@@ -1655,7 +1655,7 @@ function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, a
   const [bulkSearch, setBulkSearch] = useState("");
   // qty per item id used in the bulk dialog (string for input control)
   const [bulkQty, setBulkQty] = useState<Record<string, string>>({});
-  const csvInputRef = React.useRef<HTMLInputElement>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   const list = useMemo(
     () => armoireComponents
