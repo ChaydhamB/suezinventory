@@ -2223,9 +2223,20 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
     toast.success("Entrée modifiée.");
   };
 
+  const filteredHistory = useMemo(() => {
+    const q = searchQ.trim().toLowerCase();
+    if (!q) return history;
+    return (history as HistoryEntry[]).filter((h) =>
+      (h.desig || "").toLowerCase().includes(q) ||
+      (h.ref || "").toLowerCase().includes(q) ||
+      (h.qty || "").toLowerCase().includes(q) ||
+      (h.date || "").toLowerCase().includes(q)
+    );
+  }, [history, searchQ]);
+
   const grouped = useMemo(() => {
     const m: Record<string, HistoryEntry[]> = {};
-    history.forEach((h: HistoryEntry) => {
+    filteredHistory.forEach((h: HistoryEntry) => {
       if (!m[h.date]) m[h.date] = [];
       m[h.date].push(h);
     });
@@ -2234,15 +2245,47 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
       arr.sort((a, b) => (b.time || "").localeCompare(a.time || ""))
     );
     return Object.entries(m).sort((a, b) => b[0].localeCompare(a[0]));
-  }, [history]);
+  }, [filteredHistory]);
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Historique des mouvements</CardTitle>
-        <CardDescription>Importé du fichier Excel — modifiable.</CardDescription>
+      <CardHeader className="bg-gradient-subtle">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-header text-primary-foreground shadow-soft">
+            <HistoryIcon className="h-5 w-5" />
+          </div>
+          <div>
+            <CardTitle>Historique des mouvements</CardTitle>
+            <CardDescription>Importé du fichier Excel — modifiable.</CardDescription>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 pt-6">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher dans l'historique (désignation, référence, quantité, date)…"
+            value={searchQ}
+            onChange={(e) => setSearchQ(e.target.value)}
+            className="pl-8"
+          />
+          {searchQ && (
+            <button
+              type="button"
+              onClick={() => setSearchQ("")}
+              className="absolute right-2 top-2 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-smooth"
+              aria-label="Effacer la recherche"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        {searchQ && (
+          <p className="text-xs text-muted-foreground">
+            {filteredHistory.length} résultat(s) sur {history.length} entrées
+          </p>
+        )}
+
         <div className="grid gap-2 rounded-md border p-3 md:grid-cols-[140px_110px_1fr_160px_110px_auto]">
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
@@ -2251,6 +2294,10 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
           <Input placeholder="Quantité" value={qty} onChange={(e) => setQty(e.target.value)} />
           <Button onClick={add}><Plus className="mr-1.5 h-4 w-4" /> Ajouter</Button>
         </div>
+
+        {grouped.length === 0 && searchQ && (
+          <p className="text-center text-sm text-muted-foreground py-8">Aucune entrée ne correspond à "{searchQ}".</p>
+        )}
 
         {grouped.map(([d, entries]) => {
           const isPast = d !== today;
