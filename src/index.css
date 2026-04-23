@@ -53,6 +53,15 @@ All colors MUST be HSL.
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Aesthetic tokens */
+    --brand: 222 47% 25%;
+    --brand-glow: 217 91% 60%;
+    --gradient-header: linear-gradient(135deg, hsl(var(--brand)) 0%, hsl(var(--brand-glow)) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
+    --shadow-soft: 0 4px 16px -4px hsl(var(--brand) / 0.12);
+    --shadow-glow: 0 8px 32px -8px hsl(var(--brand-glow) / 0.35);
+    --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
@@ -91,6 +100,13 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --brand: 217 91% 60%;
+    --brand-glow: 199 89% 60%;
+    --gradient-header: linear-gradient(135deg, hsl(var(--brand)) 0%, hsl(var(--brand-glow)) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--card)) 100%);
+    --shadow-soft: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 8px 32px -8px hsl(var(--brand-glow) / 0.4);
   }
 }
 
@@ -102,4 +118,14 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer utilities {
+  .bg-gradient-header { background: var(--gradient-header); }
+  .bg-gradient-subtle { background: var(--gradient-subtle); }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .transition-smooth { transition: var(--transition-smooth); }
+  .hover-lift { transition: var(--transition-smooth); }
+  .hover-lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-soft); }
 }

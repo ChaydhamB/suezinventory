@@ -94,6 +94,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { exportRowsXLSX, parseSheetFile } from "@/lib/exportSheet";
 import { NavContext, useNav } from "@/lib/navContext";
 import { Eye, Upload } from "lucide-react";
+import { ArmoireSketch } from "@/components/ArmoireSketch";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -490,10 +491,10 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       {AdminModal}
       {/* Header */}
-      <header className="border-b bg-card">
+      <header className="border-b bg-card shadow-soft sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-card/85">
         <div className="container flex flex-wrap items-center justify-between gap-3 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-header text-primary-foreground shadow-glow transition-smooth hover:scale-105">
               <Warehouse className="h-5 w-5" />
             </div>
             <div>
@@ -646,15 +647,23 @@ function StatCard({ label, value, icon, sub, tone = "default" }: any) {
     warn: "bg-destructive/5 border-destructive/30",
     good: "bg-primary/5 border-primary/30",
   };
+  const iconTones: Record<string, string> = {
+    default: "bg-gradient-header text-primary-foreground",
+    warn: "bg-destructive/15 text-destructive",
+    good: "bg-primary/15 text-primary",
+  };
   return (
-    <Card className={tones[tone] || ""}>
+    <Card className={`${tones[tone] || ""} hover-lift overflow-hidden relative`}>
+      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-header opacity-60" />
       <CardContent className="flex items-center justify-between p-5">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
           <p className="mt-1 text-2xl font-bold">{value}</p>
           {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
         </div>
-        <div className="text-muted-foreground">{icon}</div>
+        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconTones[tone] || iconTones.default}`}>
+          {icon}
+        </div>
       </CardContent>
     </Card>
   );
@@ -1846,31 +1855,46 @@ function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, a
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <CardTitle>Composants assignés — {armoireName}</CardTitle>
-            <CardDescription>
-              Définissez les composants requis et la quantité réellement présente dans l'armoire.
-            </CardDescription>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="bg-primary/10">{stats.total} composants</Badge>
-            <Badge className="bg-green-500/15 text-green-700 dark:text-green-400">OK: {stats.ok}</Badge>
-            <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">Partiel: {stats.low}</Badge>
-            <Badge className="bg-destructive/15 text-destructive">Manquant: {stats.missing}</Badge>
+    <Card className="overflow-hidden">
+      <CardHeader className="bg-gradient-subtle">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-start gap-4 flex-1 min-w-[280px]">
+            <ArmoireSketch
+              total={stats.total}
+              ok={stats.ok}
+              partial={stats.low}
+              missing={stats.missing}
+              className="h-[120px] w-auto shrink-0 hidden sm:block"
+            />
+            <div className="flex-1">
+              <CardTitle className="flex items-center gap-2">
+                <Box className="h-5 w-5 text-primary" />
+                {armoireName}
+              </CardTitle>
+              <CardDescription className="mt-1">
+                Définissez les composants requis et la quantité réellement présente dans l'armoire.
+              </CardDescription>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="bg-primary/10">{stats.total} composants</Badge>
+                <Badge className="bg-green-500/15 text-green-700 dark:text-green-400 hover:bg-green-500/20">OK: {stats.ok}</Badge>
+                <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20">Partiel: {stats.low}</Badge>
+                <Badge className="bg-destructive/15 text-destructive hover:bg-destructive/20">Manquant: {stats.missing}</Badge>
+              </div>
+            </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 pt-6">
         <div className="flex flex-wrap items-center gap-2">
-          <Input
-            placeholder="Rechercher un composant…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-xs"
-          />
+          <div className="relative max-w-xs flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher un composant…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-8"
+            />
+          </div>
           <Button size="sm" onClick={() => { setBulkQty({}); setBulkOpen(true); }}>
             <Plus className="mr-1 h-4 w-4" /> Ajouter / modifier composants
           </Button>
@@ -2144,6 +2168,7 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
   const [qty, setQty] = useState("");
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [editDraft, setEditDraft] = useState<HistoryEntry | null>(null);
+  const [searchQ, setSearchQ] = useState("");
 
   const today = todayISO();
 
@@ -2198,9 +2223,20 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
     toast.success("Entrée modifiée.");
   };
 
+  const filteredHistory = useMemo(() => {
+    const q = searchQ.trim().toLowerCase();
+    if (!q) return history;
+    return (history as HistoryEntry[]).filter((h) =>
+      (h.desig || "").toLowerCase().includes(q) ||
+      (h.ref || "").toLowerCase().includes(q) ||
+      (h.qty || "").toLowerCase().includes(q) ||
+      (h.date || "").toLowerCase().includes(q)
+    );
+  }, [history, searchQ]);
+
   const grouped = useMemo(() => {
     const m: Record<string, HistoryEntry[]> = {};
-    history.forEach((h: HistoryEntry) => {
+    filteredHistory.forEach((h: HistoryEntry) => {
       if (!m[h.date]) m[h.date] = [];
       m[h.date].push(h);
     });
@@ -2209,15 +2245,47 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
       arr.sort((a, b) => (b.time || "").localeCompare(a.time || ""))
     );
     return Object.entries(m).sort((a, b) => b[0].localeCompare(a[0]));
-  }, [history]);
+  }, [filteredHistory]);
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Historique des mouvements</CardTitle>
-        <CardDescription>Importé du fichier Excel — modifiable.</CardDescription>
+      <CardHeader className="bg-gradient-subtle">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-header text-primary-foreground shadow-soft">
+            <HistoryIcon className="h-5 w-5" />
+          </div>
+          <div>
+            <CardTitle>Historique des mouvements</CardTitle>
+            <CardDescription>Importé du fichier Excel — modifiable.</CardDescription>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 pt-6">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher dans l'historique (désignation, référence, quantité, date)…"
+            value={searchQ}
+            onChange={(e) => setSearchQ(e.target.value)}
+            className="pl-8"
+          />
+          {searchQ && (
+            <button
+              type="button"
+              onClick={() => setSearchQ("")}
+              className="absolute right-2 top-2 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-smooth"
+              aria-label="Effacer la recherche"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        {searchQ && (
+          <p className="text-xs text-muted-foreground">
+            {filteredHistory.length} résultat(s) sur {history.length} entrées
+          </p>
+        )}
+
         <div className="grid gap-2 rounded-md border p-3 md:grid-cols-[140px_110px_1fr_160px_110px_auto]">
           <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           <Input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
@@ -2226,6 +2294,10 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
           <Input placeholder="Quantité" value={qty} onChange={(e) => setQty(e.target.value)} />
           <Button onClick={add}><Plus className="mr-1.5 h-4 w-4" /> Ajouter</Button>
         </div>
+
+        {grouped.length === 0 && searchQ && (
+          <p className="text-center text-sm text-muted-foreground py-8">Aucune entrée ne correspond à "{searchQ}".</p>
+        )}
 
         {grouped.map(([d, entries]) => {
           const isPast = d !== today;
