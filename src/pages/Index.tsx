@@ -556,6 +556,7 @@ export default function Index() {
               items={items}
               purchases={purchases}
               setPurchases={setPurchasesM}
+              computeStock={computeStock}
             />
           </TabsContent>
 
