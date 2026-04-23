@@ -317,8 +317,25 @@ export default function Index() {
         setItems(it); setTransactions(tx); setArmoires(ar);
         setCustomCats(ca); setPurchases(pu); setArmoireComponents(co);
 
+        // Dedupe history entries (by txId, or by date+desig+qty+time signature)
+        const seenTx = new Set<string>();
+        const seenSig = new Set<string>();
+        const dedupedHi: HistoryEntry[] = [];
+        for (const h of hi) {
+          if (h.txId) {
+            if (seenTx.has(h.txId)) continue;
+            seenTx.add(h.txId);
+          } else {
+            const sig = `${h.date}|${h.time ?? ""}|${h.desig}|${h.qty}|${h.ref ?? ""}`;
+            if (seenSig.has(sig)) continue;
+            seenSig.add(sig);
+          }
+          dedupedHi.push(h);
+        }
+        const removedDup = hi.length - dedupedHi.length;
+
         // Backfill: ensure every transaction has a matching history entry
-        const existingTxIds = new Set(hi.filter((h) => h.txId).map((h) => h.txId));
+        const existingTxIds = new Set(dedupedHi.filter((h) => h.txId).map((h) => h.txId));
         const missing: HistoryEntry[] = [];
         tx.forEach((t) => {
           if (existingTxIds.has(t.id)) return;
@@ -333,11 +350,11 @@ export default function Index() {
             type: t.type,
           });
         });
-        if (missing.length) {
-          setHistory([...hi, ...missing]);
+        if (missing.length || removedDup > 0) {
+          setHistory([...dedupedHi, ...missing]);
           setDirty((d) => ({ ...d, history: true }));
         } else {
-          setHistory(hi);
+          setHistory(dedupedHi);
         }
         setLoaded(true);
       } catch (e: any) {
