@@ -1855,7 +1855,7 @@ function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, a
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="bg-gradient-subtle">
+      <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4 flex-1 min-w-[280px]">
             <ArmoireSketch
@@ -1863,21 +1863,21 @@ function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, a
               ok={stats.ok}
               partial={stats.low}
               missing={stats.missing}
-              className="h-[120px] w-auto shrink-0 hidden sm:block"
+              className="h-[110px] w-auto shrink-0 hidden sm:block"
             />
             <div className="flex-1">
               <CardTitle className="flex items-center gap-2">
-                <Box className="h-5 w-5 text-primary" />
+                <Box className="h-5 w-5 text-muted-foreground" />
                 {armoireName}
               </CardTitle>
               <CardDescription className="mt-1">
                 Définissez les composants requis et la quantité réellement présente dans l'armoire.
               </CardDescription>
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="bg-primary/10">{stats.total} composants</Badge>
-                <Badge className="bg-green-500/15 text-green-700 dark:text-green-400 hover:bg-green-500/20">OK: {stats.ok}</Badge>
-                <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20">Partiel: {stats.low}</Badge>
-                <Badge className="bg-destructive/15 text-destructive hover:bg-destructive/20">Manquant: {stats.missing}</Badge>
+                <Badge variant="outline">{stats.total} composants</Badge>
+                <Badge variant="outline" className="border-green-500/40 text-green-700 dark:text-green-400">OK: {stats.ok}</Badge>
+                <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-400">Partiel: {stats.low}</Badge>
+                <Badge variant="outline" className="border-destructive/40 text-destructive">Manquant: {stats.missing}</Badge>
               </div>
             </div>
           </div>
