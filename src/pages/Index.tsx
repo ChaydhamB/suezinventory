@@ -491,14 +491,14 @@ export default function Index() {
     <div className="min-h-screen bg-background">
       {AdminModal}
       {/* Header */}
-      <header className="border-b bg-card shadow-soft sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-card/85">
+      <header className="border-b bg-card/95 backdrop-blur sticky top-0 z-30">
         <div className="container flex flex-wrap items-center justify-between gap-3 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-header text-primary-foreground shadow-glow transition-smooth hover:scale-105">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-smooth hover:opacity-90">
               <Warehouse className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-lg font-bold tracking-tight">Atelier Stock</h1>
+              <h1 className="text-lg font-semibold tracking-tight">Atelier Stock</h1>
               <p className="text-xs text-muted-foreground">Gestion complète d'inventaire — Sfax</p>
             </div>
           </div>
@@ -643,22 +643,21 @@ export default function Index() {
 /* ------------------------------------------------------------------ */
 function StatCard({ label, value, icon, sub, tone = "default" }: any) {
   const tones: Record<string, string> = {
-    default: "bg-card",
-    warn: "bg-destructive/5 border-destructive/30",
-    good: "bg-primary/5 border-primary/30",
+    default: "",
+    warn: "border-destructive/30",
+    good: "border-primary/20",
   };
   const iconTones: Record<string, string> = {
-    default: "bg-gradient-header text-primary-foreground",
-    warn: "bg-destructive/15 text-destructive",
-    good: "bg-primary/15 text-primary",
+    default: "bg-muted text-muted-foreground",
+    warn: "bg-destructive/10 text-destructive",
+    good: "bg-primary/10 text-primary",
   };
   return (
-    <Card className={`${tones[tone] || ""} hover-lift overflow-hidden relative`}>
-      <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-header opacity-60" />
+    <Card className={`${tones[tone] || ""} hover-lift`}>
       <CardContent className="flex items-center justify-between p-5">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
-          <p className="mt-1 text-2xl font-bold">{value}</p>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p>
           {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
         </div>
         <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${iconTones[tone] || iconTones.default}`}>
@@ -1856,7 +1855,7 @@ function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, a
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="bg-gradient-subtle">
+      <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4 flex-1 min-w-[280px]">
             <ArmoireSketch
@@ -1864,21 +1863,21 @@ function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, a
               ok={stats.ok}
               partial={stats.low}
               missing={stats.missing}
-              className="h-[120px] w-auto shrink-0 hidden sm:block"
+              className="h-[110px] w-auto shrink-0 hidden sm:block"
             />
             <div className="flex-1">
               <CardTitle className="flex items-center gap-2">
-                <Box className="h-5 w-5 text-primary" />
+                <Box className="h-5 w-5 text-muted-foreground" />
                 {armoireName}
               </CardTitle>
               <CardDescription className="mt-1">
                 Définissez les composants requis et la quantité réellement présente dans l'armoire.
               </CardDescription>
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="bg-primary/10">{stats.total} composants</Badge>
-                <Badge className="bg-green-500/15 text-green-700 dark:text-green-400 hover:bg-green-500/20">OK: {stats.ok}</Badge>
-                <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20">Partiel: {stats.low}</Badge>
-                <Badge className="bg-destructive/15 text-destructive hover:bg-destructive/20">Manquant: {stats.missing}</Badge>
+                <Badge variant="outline">{stats.total} composants</Badge>
+                <Badge variant="outline" className="border-green-500/40 text-green-700 dark:text-green-400">OK: {stats.ok}</Badge>
+                <Badge variant="outline" className="border-amber-500/40 text-amber-700 dark:text-amber-400">Partiel: {stats.low}</Badge>
+                <Badge variant="outline" className="border-destructive/40 text-destructive">Manquant: {stats.missing}</Badge>
               </div>
             </div>
           </div>
@@ -2249,9 +2248,9 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
 
   return (
     <Card>
-      <CardHeader className="bg-gradient-subtle">
+      <CardHeader>
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-header text-primary-foreground shadow-soft">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-muted-foreground">
             <HistoryIcon className="h-5 w-5" />
           </div>
           <div>
