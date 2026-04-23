@@ -1855,31 +1855,46 @@ function ArmoireComponentsPanel({ armoireId, armoireName, items, computeStock, a
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <CardTitle>Composants assignés — {armoireName}</CardTitle>
-            <CardDescription>
-              Définissez les composants requis et la quantité réellement présente dans l'armoire.
-            </CardDescription>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="bg-primary/10">{stats.total} composants</Badge>
-            <Badge className="bg-green-500/15 text-green-700 dark:text-green-400">OK: {stats.ok}</Badge>
-            <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400">Partiel: {stats.low}</Badge>
-            <Badge className="bg-destructive/15 text-destructive">Manquant: {stats.missing}</Badge>
+    <Card className="overflow-hidden">
+      <CardHeader className="bg-gradient-subtle">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-start gap-4 flex-1 min-w-[280px]">
+            <ArmoireSketch
+              total={stats.total}
+              ok={stats.ok}
+              partial={stats.low}
+              missing={stats.missing}
+              className="h-[120px] w-auto shrink-0 hidden sm:block"
+            />
+            <div className="flex-1">
+              <CardTitle className="flex items-center gap-2">
+                <Box className="h-5 w-5 text-primary" />
+                {armoireName}
+              </CardTitle>
+              <CardDescription className="mt-1">
+                Définissez les composants requis et la quantité réellement présente dans l'armoire.
+              </CardDescription>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="bg-primary/10">{stats.total} composants</Badge>
+                <Badge className="bg-green-500/15 text-green-700 dark:text-green-400 hover:bg-green-500/20">OK: {stats.ok}</Badge>
+                <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20">Partiel: {stats.low}</Badge>
+                <Badge className="bg-destructive/15 text-destructive hover:bg-destructive/20">Manquant: {stats.missing}</Badge>
+              </div>
+            </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 pt-6">
         <div className="flex flex-wrap items-center gap-2">
-          <Input
-            placeholder="Rechercher un composant…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-xs"
-          />
+          <div className="relative max-w-xs flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher un composant…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-8"
+            />
+          </div>
           <Button size="sm" onClick={() => { setBulkQty({}); setBulkOpen(true); }}>
             <Plus className="mr-1 h-4 w-4" /> Ajouter / modifier composants
           </Button>
