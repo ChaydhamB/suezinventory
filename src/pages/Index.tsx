@@ -2399,6 +2399,7 @@ function PurchaseView({ items, purchases, setPurchases, computeStock }: any) {
                 <TableHead>Référence</TableHead>
                 <TableHead>Fournisseur</TableHead>
                 <TableHead className="text-right">Prix unit.</TableHead>
+                <TableHead className="text-right">Stock</TableHead>
                 <TableHead className="w-32 text-center">Quantité</TableHead>
                 <TableHead className="text-right">Coût total</TableHead>
                 <TableHead>Note</TableHead>
