@@ -2168,6 +2168,7 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
   const [qty, setQty] = useState("");
   const [editingIdx, setEditingIdx] = useState<number | null>(null);
   const [editDraft, setEditDraft] = useState<HistoryEntry | null>(null);
+  const [searchQ, setSearchQ] = useState("");
 
   const today = todayISO();
 
