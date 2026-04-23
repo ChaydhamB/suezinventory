@@ -2328,7 +2328,7 @@ function HistoryView({ history, setHistory, requireAdmin }: any) {
 /* ------------------------------------------------------------------ */
 /*  Purchase List                                                      */
 /* ------------------------------------------------------------------ */
-function PurchaseView({ items, purchases, setPurchases }: any) {
+function PurchaseView({ items, purchases, setPurchases, computeStock }: any) {
   const rows = purchases
     .map((p: PurchaseEntry) => ({ p, item: items.find((i: Item) => i.id === p.itemId) }))
     .filter((r: any) => r.item);
