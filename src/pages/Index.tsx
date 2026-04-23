@@ -2362,9 +2362,32 @@ function PurchaseView({ items, purchases, setPurchases, computeStock }: any) {
             {rows.length} article(s) à acheter · Total estimé : {fmtPrice(totalCost)}
           </CardDescription>
         </div>
-        <Button variant="outline" size="sm" onClick={clearAll} disabled={rows.length === 0}>
-          <Trash2 className="mr-1.5 h-4 w-4" /> Vider la liste
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const data = rows.map(({ p, item }: any) => ({
+                Catégorie: item.cat,
+                Désignation: item.name,
+                Référence: item.ref,
+                Fournisseur: item.supplier,
+                "Prix unitaire": item.unitPrice,
+                Quantité: p.qty,
+                "Stock actuel": computeStock ? computeStock(item) : item.stock,
+                "Coût total": p.qty * item.unitPrice,
+                Note: p.note ?? "",
+              }));
+              exportRowsXLSX(data, "Pour achat", "Pour_achat");
+            }}
+            disabled={rows.length === 0}
+          >
+            <Download className="mr-1.5 h-4 w-4" /> Exporter Excel
+          </Button>
+          <Button variant="outline" size="sm" onClick={clearAll} disabled={rows.length === 0}>
+            <Trash2 className="mr-1.5 h-4 w-4" /> Vider la liste
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto rounded-md border">
