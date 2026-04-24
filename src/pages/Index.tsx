@@ -296,6 +296,32 @@ export default function Index() {
     });
   }, [isAdmin]);
 
+  // Load projects + project<->item links
+  const refreshProjects = useCallback(async () => {
+    try {
+      const [ps, pi] = await Promise.all([loadProjects(), loadAllProjectItems()]);
+      setProjects(ps);
+      setAllProjectItems(pi);
+    } catch (e: any) {
+      // Viewers with no projects yet just see empty lists
+      setProjects([]);
+      setAllProjectItems([]);
+    }
+  }, []);
+  useEffect(() => { if (role !== "loading") void refreshProjects(); }, [role, refreshProjects]);
+
+  // Items filtered by the active project (if any). Admins with no project picked see everything.
+  const visibleItems = useMemo(() => {
+    if (!activeProjectId) return items;
+    const ids = new Set(allProjectItems.filter((p) => p.projectId === activeProjectId).map((p) => p.itemId));
+    return items.filter((it) => ids.has(it.id));
+  }, [items, allProjectItems, activeProjectId]);
+
+  const activeProject = useMemo(
+    () => projects.find((p) => p.id === activeProjectId) ?? null,
+    [projects, activeProjectId],
+  );
+
   // Load from cloud (with one-time localStorage migration) + realtime sync
   useEffect(() => {
     const refresh = async () => {
