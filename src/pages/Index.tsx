@@ -607,13 +607,36 @@ export default function Index() {
             <TabsTrigger value="history"><HistoryIcon className="mr-1.5 h-4 w-4" />Historique</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="projects" className="space-y-4">
+            <ProjectsView
+              isAdmin={isAdmin}
+              items={items}
+              requireAdmin={requireAdmin}
+              activeProjectId={activeProjectId}
+              setActiveProjectId={setActiveProjectId}
+              onProjectsChanged={() => { void refreshProjects(); }}
+            />
+          </TabsContent>
+
+          {activeProject && activeTab !== "projects" && (
+            <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
+              <Folder className="h-4 w-4 text-primary" />
+              <span className="text-muted-foreground">Projet actif :</span>
+              <span className="font-medium">{activeProject.name}</span>
+              <Badge variant="outline" className="font-mono text-xs">{activeProject.code}</Badge>
+              <Button size="sm" variant="ghost" className="ml-auto" onClick={() => setActiveProjectId(null)}>
+                <X className="h-3 w-3 mr-1" />Effacer
+              </Button>
+            </div>
+          )}
+
           <TabsContent value="dashboard" className="space-y-4">
-            <DashboardView kpi={kpi} items={items} transactions={transactions} computeStock={computeStock} purchases={purchases} setPurchases={setPurchasesM} />
+            <DashboardView kpi={kpi} items={visibleItems} transactions={transactions} computeStock={computeStock} purchases={purchases} setPurchases={setPurchasesM} />
           </TabsContent>
 
           <TabsContent value="stock">
             <StockView
-              items={items}
+              items={visibleItems}
               setItems={setItemsM}
               categories={allCategories}
               computeStock={computeStock}
