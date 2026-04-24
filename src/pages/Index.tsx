@@ -249,12 +249,12 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [stockSearch, setStockSearch] = useState("");
   const [role, setRole] = useState<"admin" | "viewer" | "loading">("loading");
+  const [editMode, setEditMode] = useState(false);
   // Per-table dirty flags. Local mutations set them true; realtime refresh leaves them false.
   const [dirty, setDirty] = useState({
     items: false, tx: false, armoires: false, cats: false, history: false, purchases: false,
   });
   const markDirty = useCallback((k: keyof typeof dirty) => setDirty((d) => ({ ...d, [k]: true })), []);
-  const { require: requireAdmin, Modal: AdminModal } = useAdminGate();
   const navigate = useNavigate();
 
   // Load current user's role
@@ -272,10 +272,24 @@ export default function Index() {
   }, []);
 
   const isAdmin = role === "admin";
+  const canEdit = isAdmin && editMode;
+  const { require: requireAdmin, Modal: AdminModal } = useAdminGate(canEdit, isAdmin);
   const goToStock = useCallback((search?: string) => {
     setStockSearch(search ?? "");
     setActiveTab("stock");
   }, []);
+
+  const toggleEditMode = useCallback(() => {
+    if (!isAdmin) {
+      toast.error("Vous n'avez pas les droits administrateur pour modifier.");
+      return;
+    }
+    setEditMode((v) => {
+      const next = !v;
+      toast.success(next ? "Mode modification activé." : "Mode lecture seule activé.");
+      return next;
+    });
+  }, [isAdmin]);
 
   // Load from cloud (with one-time localStorage migration) + realtime sync
   useEffect(() => {
