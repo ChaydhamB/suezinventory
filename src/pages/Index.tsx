@@ -117,54 +117,35 @@ function ItemLink({ item, className = "", children }: { item?: Item | null; clas
   );
 }
 
-function useAdminGate() {
+function useAdminGate(canEdit: boolean, isAdmin: boolean) {
   const [open, setOpen] = useState(false);
-  const [pw, setPw] = useState("");
-  const [err, setErr] = useState(false);
-  const [cb, setCb] = useState<(() => void) | null>(null);
 
-  const require = useCallback((fn: () => void) => {
-    setCb(() => fn);
-    setOpen(true);
-    setPw("");
-    setErr(false);
-  }, []);
-
-  const submit = () => {
-    if (pw === ADMIN_PASSWORD) {
-      setOpen(false);
-      cb?.();
-    } else setErr(true);
-  };
+  const require = useCallback(
+    (fn: () => void | Promise<void>) => {
+      if (canEdit) {
+        void fn();
+        return;
+      }
+      setOpen(true);
+    },
+    [canEdit],
+  );
 
   const Modal = (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Lock className="h-4 w-4" /> Authentification administrateur
+            <Eye className="h-4 w-4" /> Mode lecture seule
           </DialogTitle>
           <DialogDescription>
-            Entrez le mot de passe pour effectuer cette modification.
+            {isAdmin
+              ? "Vous êtes en mode lecture seule. Cliquez sur le badge « Lecture seule » en haut de la page pour activer la modification."
+              : "Vous êtes en mode lecture seule. Vous pouvez consulter et naviguer mais vous n'avez pas les droits pour modifier les données."}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-2">
-          <Label>Mot de passe</Label>
-          <Input
-            type="password"
-            value={pw}
-            autoFocus
-            onChange={(e) => {
-              setPw(e.target.value);
-              setErr(false);
-            }}
-            onKeyDown={(e) => e.key === "Enter" && submit()}
-          />
-          {err && <p className="text-sm text-destructive">Mot de passe incorrect.</p>}
-        </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
-          <Button onClick={submit}>Confirmer</Button>
+          <Button onClick={() => setOpen(false)}>J'ai compris</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
