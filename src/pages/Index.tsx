@@ -117,54 +117,35 @@ function ItemLink({ item, className = "", children }: { item?: Item | null; clas
   );
 }
 
-function useAdminGate() {
+function useAdminGate(canEdit: boolean, isAdmin: boolean) {
   const [open, setOpen] = useState(false);
-  const [pw, setPw] = useState("");
-  const [err, setErr] = useState(false);
-  const [cb, setCb] = useState<(() => void) | null>(null);
 
-  const require = useCallback((fn: () => void) => {
-    setCb(() => fn);
-    setOpen(true);
-    setPw("");
-    setErr(false);
-  }, []);
-
-  const submit = () => {
-    if (pw === ADMIN_PASSWORD) {
-      setOpen(false);
-      cb?.();
-    } else setErr(true);
-  };
+  const require = useCallback(
+    (fn: () => void | Promise<void>) => {
+      if (canEdit) {
+        void fn();
+        return;
+      }
+      setOpen(true);
+    },
+    [canEdit],
+  );
 
   const Modal = (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Lock className="h-4 w-4" /> Authentification administrateur
+            <Eye className="h-4 w-4" /> Mode lecture seule
           </DialogTitle>
           <DialogDescription>
-            Entrez le mot de passe pour effectuer cette modification.
+            {isAdmin
+              ? "Vous êtes en mode lecture seule. Cliquez sur le badge « Lecture seule » en haut de la page pour activer la modification."
+              : "Vous êtes en mode lecture seule. Vous pouvez consulter et naviguer mais vous n'avez pas les droits pour modifier les données."}
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-2">
-          <Label>Mot de passe</Label>
-          <Input
-            type="password"
-            value={pw}
-            autoFocus
-            onChange={(e) => {
-              setPw(e.target.value);
-              setErr(false);
-            }}
-            onKeyDown={(e) => e.key === "Enter" && submit()}
-          />
-          {err && <p className="text-sm text-destructive">Mot de passe incorrect.</p>}
-        </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Annuler</Button>
-          <Button onClick={submit}>Confirmer</Button>
+          <Button onClick={() => setOpen(false)}>J'ai compris</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -268,12 +249,12 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [stockSearch, setStockSearch] = useState("");
   const [role, setRole] = useState<"admin" | "viewer" | "loading">("loading");
+  const [editMode, setEditMode] = useState(false);
   // Per-table dirty flags. Local mutations set them true; realtime refresh leaves them false.
   const [dirty, setDirty] = useState({
     items: false, tx: false, armoires: false, cats: false, history: false, purchases: false,
   });
   const markDirty = useCallback((k: keyof typeof dirty) => setDirty((d) => ({ ...d, [k]: true })), []);
-  const { require: requireAdmin, Modal: AdminModal } = useAdminGate();
   const navigate = useNavigate();
 
   // Load current user's role
@@ -291,10 +272,24 @@ export default function Index() {
   }, []);
 
   const isAdmin = role === "admin";
+  const canEdit = isAdmin && editMode;
+  const { require: requireAdmin, Modal: AdminModal } = useAdminGate(canEdit, isAdmin);
   const goToStock = useCallback((search?: string) => {
     setStockSearch(search ?? "");
     setActiveTab("stock");
   }, []);
+
+  const toggleEditMode = useCallback(() => {
+    if (!isAdmin) {
+      toast.error("Vous n'avez pas les droits administrateur pour modifier.");
+      return;
+    }
+    setEditMode((v) => {
+      const next = !v;
+      toast.success(next ? "Mode modification activé." : "Mode lecture seule activé.");
+      return next;
+    });
+  }, [isAdmin]);
 
   // Load from cloud (with one-time localStorage migration) + realtime sync
   useEffect(() => {
@@ -487,7 +482,7 @@ export default function Index() {
   }
 
   return (
-    <NavContext.Provider value={{ goToStock, isAdmin }}>
+    <NavContext.Provider value={{ goToStock, isAdmin: canEdit }}>
     <div className="min-h-screen bg-background">
       {AdminModal}
       {/* Header */}
@@ -503,10 +498,19 @@ export default function Index() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant={isAdmin ? "default" : "secondary"} className="gap-1">
-              {isAdmin ? <Lock className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-              {isAdmin ? "Admin" : "Lecture seule"}
-            </Badge>
+            <button
+              type="button"
+              onClick={toggleEditMode}
+              title={isAdmin
+                ? (canEdit ? "Cliquer pour repasser en lecture seule" : "Cliquer pour activer la modification")
+                : "Vous n'avez pas les droits administrateur"}
+              className="focus:outline-none focus:ring-2 focus:ring-ring rounded-full"
+            >
+              <Badge variant={canEdit ? "default" : "secondary"} className="gap-1 cursor-pointer hover:opacity-90 transition-smooth">
+                {canEdit ? <Lock className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                {canEdit ? "Modification" : "Lecture seule"}
+              </Badge>
+            </button>
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" /> Export Excel
             </Button>
