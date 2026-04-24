@@ -595,7 +595,8 @@ export default function Index() {
 
       <main className="container py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-8">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-9">
+            <TabsTrigger value="projects"><Folder className="mr-1.5 h-4 w-4" />Projets</TabsTrigger>
             <TabsTrigger value="dashboard"><LayoutGrid className="mr-1.5 h-4 w-4" />Tableau</TabsTrigger>
             <TabsTrigger value="stock"><Package className="mr-1.5 h-4 w-4" />Stock</TabsTrigger>
             <TabsTrigger value="in"><ArrowDownToLine className="mr-1.5 h-4 w-4" />Entrées</TabsTrigger>
