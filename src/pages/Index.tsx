@@ -93,8 +93,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { exportRowsXLSX, parseSheetFile } from "@/lib/exportSheet";
 import { NavContext, useNav } from "@/lib/navContext";
-import { Eye, Upload } from "lucide-react";
+import { Eye, Upload, Folder } from "lucide-react";
 import { ArmoireSketch } from "@/components/ArmoireSketch";
+import ProjectsView from "@/components/ProjectsView";
+import { loadProjects, loadAllProjectItems, type Project, type ProjectItem } from "@/lib/cloudProjects";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
