@@ -542,6 +542,26 @@ export default function Index() {
                 {canEdit ? "Modification" : "Lecture seule"}
               </Badge>
             </button>
+            <Select
+              value={activeProjectId ?? "__all__"}
+              onValueChange={(v) => setActiveProjectId(v === "__all__" ? null : v)}
+            >
+              <SelectTrigger className="h-8 w-[200px]">
+                <Folder className="mr-2 h-3.5 w-3.5" />
+                <SelectValue placeholder="Projet" />
+              </SelectTrigger>
+              <SelectContent>
+                {isAdmin && <SelectItem value="__all__">Tous les projets</SelectItem>}
+                {!isAdmin && projects.length === 0 && (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">Aucun projet attribué</div>
+                )}
+                {projects.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    <span className="font-mono text-xs mr-2">{p.code}</span>{p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" /> Export Excel
             </Button>
