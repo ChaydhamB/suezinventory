@@ -252,6 +252,9 @@ export default function Index() {
   const [stockSearch, setStockSearch] = useState("");
   const [role, setRole] = useState<"admin" | "viewer" | "loading">("loading");
   const [editMode, setEditMode] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [allProjectItems, setAllProjectItems] = useState<ProjectItem[]>([]);
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   // Per-table dirty flags. Local mutations set them true; realtime refresh leaves them false.
   const [dirty, setDirty] = useState({
     items: false, tx: false, armoires: false, cats: false, history: false, purchases: false,
