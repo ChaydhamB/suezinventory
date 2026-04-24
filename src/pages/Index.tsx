@@ -482,7 +482,7 @@ export default function Index() {
   }
 
   return (
-    <NavContext.Provider value={{ goToStock, isAdmin }}>
+    <NavContext.Provider value={{ goToStock, isAdmin: canEdit }}>
     <div className="min-h-screen bg-background">
       {AdminModal}
       {/* Header */}
@@ -498,10 +498,19 @@ export default function Index() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant={isAdmin ? "default" : "secondary"} className="gap-1">
-              {isAdmin ? <Lock className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-              {isAdmin ? "Admin" : "Lecture seule"}
-            </Badge>
+            <button
+              type="button"
+              onClick={toggleEditMode}
+              title={isAdmin
+                ? (canEdit ? "Cliquer pour repasser en lecture seule" : "Cliquer pour activer la modification")
+                : "Vous n'avez pas les droits administrateur"}
+              className="focus:outline-none focus:ring-2 focus:ring-ring rounded-full"
+            >
+              <Badge variant={canEdit ? "default" : "secondary"} className="gap-1 cursor-pointer hover:opacity-90 transition-smooth">
+                {canEdit ? <Lock className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                {canEdit ? "Modification" : "Lecture seule"}
+              </Badge>
+            </button>
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" /> Export Excel
             </Button>
