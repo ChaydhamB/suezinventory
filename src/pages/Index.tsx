@@ -93,8 +93,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { exportRowsXLSX, parseSheetFile } from "@/lib/exportSheet";
 import { NavContext, useNav } from "@/lib/navContext";
-import { Eye, Upload } from "lucide-react";
+import { Eye, Upload, Folder } from "lucide-react";
 import { ArmoireSketch } from "@/components/ArmoireSketch";
+import ProjectsView from "@/components/ProjectsView";
+import { loadProjects, loadAllProjectItems, type Project, type ProjectItem } from "@/lib/cloudProjects";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -250,6 +252,9 @@ export default function Index() {
   const [stockSearch, setStockSearch] = useState("");
   const [role, setRole] = useState<"admin" | "viewer" | "loading">("loading");
   const [editMode, setEditMode] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [allProjectItems, setAllProjectItems] = useState<ProjectItem[]>([]);
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   // Per-table dirty flags. Local mutations set them true; realtime refresh leaves them false.
   const [dirty, setDirty] = useState({
     items: false, tx: false, armoires: false, cats: false, history: false, purchases: false,
@@ -290,6 +295,32 @@ export default function Index() {
       return next;
     });
   }, [isAdmin]);
+
+  // Load projects + project<->item links
+  const refreshProjects = useCallback(async () => {
+    try {
+      const [ps, pi] = await Promise.all([loadProjects(), loadAllProjectItems()]);
+      setProjects(ps);
+      setAllProjectItems(pi);
+    } catch (e: any) {
+      // Viewers with no projects yet just see empty lists
+      setProjects([]);
+      setAllProjectItems([]);
+    }
+  }, []);
+  useEffect(() => { if (role !== "loading") void refreshProjects(); }, [role, refreshProjects]);
+
+  // Items filtered by the active project (if any). Admins with no project picked see everything.
+  const visibleItems = useMemo(() => {
+    if (!activeProjectId) return items;
+    const ids = new Set(allProjectItems.filter((p) => p.projectId === activeProjectId).map((p) => p.itemId));
+    return items.filter((it) => ids.has(it.id));
+  }, [items, allProjectItems, activeProjectId]);
+
+  const activeProject = useMemo(
+    () => projects.find((p) => p.id === activeProjectId) ?? null,
+    [projects, activeProjectId],
+  );
 
   // Load from cloud (with one-time localStorage migration) + realtime sync
   useEffect(() => {
@@ -511,6 +542,26 @@ export default function Index() {
                 {canEdit ? "Modification" : "Lecture seule"}
               </Badge>
             </button>
+            <Select
+              value={activeProjectId ?? "__all__"}
+              onValueChange={(v) => setActiveProjectId(v === "__all__" ? null : v)}
+            >
+              <SelectTrigger className="h-8 w-[200px]">
+                <Folder className="mr-2 h-3.5 w-3.5" />
+                <SelectValue placeholder="Projet" />
+              </SelectTrigger>
+              <SelectContent>
+                {isAdmin && <SelectItem value="__all__">Tous les projets</SelectItem>}
+                {!isAdmin && projects.length === 0 && (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">Aucun projet attribué</div>
+                )}
+                {projects.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    <span className="font-mono text-xs mr-2">{p.code}</span>{p.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" /> Export Excel
             </Button>
@@ -544,7 +595,8 @@ export default function Index() {
 
       <main className="container py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-8">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-9">
+            <TabsTrigger value="projects"><Folder className="mr-1.5 h-4 w-4" />Projets</TabsTrigger>
             <TabsTrigger value="dashboard"><LayoutGrid className="mr-1.5 h-4 w-4" />Tableau</TabsTrigger>
             <TabsTrigger value="stock"><Package className="mr-1.5 h-4 w-4" />Stock</TabsTrigger>
             <TabsTrigger value="in"><ArrowDownToLine className="mr-1.5 h-4 w-4" />Entrées</TabsTrigger>
@@ -555,13 +607,36 @@ export default function Index() {
             <TabsTrigger value="history"><HistoryIcon className="mr-1.5 h-4 w-4" />Historique</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="projects" className="space-y-4">
+            <ProjectsView
+              isAdmin={isAdmin}
+              items={items}
+              requireAdmin={requireAdmin}
+              activeProjectId={activeProjectId}
+              setActiveProjectId={setActiveProjectId}
+              onProjectsChanged={() => { void refreshProjects(); }}
+            />
+          </TabsContent>
+
+          {activeProject && activeTab !== "projects" && (
+            <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
+              <Folder className="h-4 w-4 text-primary" />
+              <span className="text-muted-foreground">Projet actif :</span>
+              <span className="font-medium">{activeProject.name}</span>
+              <Badge variant="outline" className="font-mono text-xs">{activeProject.code}</Badge>
+              <Button size="sm" variant="ghost" className="ml-auto" onClick={() => setActiveProjectId(null)}>
+                <X className="h-3 w-3 mr-1" />Effacer
+              </Button>
+            </div>
+          )}
+
           <TabsContent value="dashboard" className="space-y-4">
-            <DashboardView kpi={kpi} items={items} transactions={transactions} computeStock={computeStock} purchases={purchases} setPurchases={setPurchasesM} />
+            <DashboardView kpi={kpi} items={visibleItems} transactions={transactions} computeStock={computeStock} purchases={purchases} setPurchases={setPurchasesM} />
           </TabsContent>
 
           <TabsContent value="stock">
             <StockView
-              items={items}
+              items={visibleItems}
               setItems={setItemsM}
               categories={allCategories}
               computeStock={computeStock}

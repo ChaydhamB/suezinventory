@@ -85,18 +85,29 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          project_id: string | null
         }
         Insert: {
           created_at?: string
           id: string
           name: string
+          project_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          project_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "armoires_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       custom_cats: {
         Row: {
@@ -120,6 +131,7 @@ export type Database = {
           desig: string
           id: string
           position: number
+          project_id: string | null
           qty: string
           ref: string
           time: string | null
@@ -132,6 +144,7 @@ export type Database = {
           desig: string
           id?: string
           position?: number
+          project_id?: string | null
           qty?: string
           ref?: string
           time?: string | null
@@ -144,13 +157,22 @@ export type Database = {
           desig?: string
           id?: string
           position?: number
+          project_id?: string | null
           qty?: string
           ref?: string
           time?: string | null
           tx_id?: string | null
           type?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "history_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       items: {
         Row: {
@@ -191,6 +213,103 @@ export type Database = {
         }
         Relationships: []
       }
+      project_items: {
+        Row: {
+          allocated_qty: number
+          created_at: string
+          id: string
+          item_id: string
+          note: string | null
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          allocated_qty?: number
+          created_at?: string
+          id?: string
+          item_id: string
+          note?: string | null
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          allocated_qty?: number
+          created_at?: string
+          id?: string
+          item_id?: string
+          note?: string | null
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_members: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          budget: number
+          code: string
+          created_at: string
+          description: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          budget?: number
+          code: string
+          created_at?: string
+          description?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          budget?: number
+          code?: string
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       purchases: {
         Row: {
           created_at: string
@@ -198,6 +317,7 @@ export type Database = {
           id: string
           item_id: string
           note: string | null
+          project_id: string | null
           qty: number
         }
         Insert: {
@@ -206,6 +326,7 @@ export type Database = {
           id: string
           item_id: string
           note?: string | null
+          project_id?: string | null
           qty: number
         }
         Update: {
@@ -214,6 +335,7 @@ export type Database = {
           id?: string
           item_id?: string
           note?: string | null
+          project_id?: string | null
           qty?: number
         }
         Relationships: [
@@ -222,6 +344,13 @@ export type Database = {
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -234,6 +363,7 @@ export type Database = {
           id: string
           item_id: string
           note: string | null
+          project_id: string | null
           qty: number
           type: string
         }
@@ -244,6 +374,7 @@ export type Database = {
           id: string
           item_id: string
           note?: string | null
+          project_id?: string | null
           qty: number
           type: string
         }
@@ -254,6 +385,7 @@ export type Database = {
           id?: string
           item_id?: string
           note?: string | null
+          project_id?: string | null
           qty?: number
           type?: string
         }
@@ -270,6 +402,13 @@ export type Database = {
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -305,6 +444,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_project_member: {
+        Args: { _project_id: string; _user_id: string }
         Returns: boolean
       }
     }
