@@ -473,11 +473,20 @@ export default function Index() {
   };
 
   const handleUpdateTemplate = async (file: File) => {
+    const tId = toast.loading("Préparation du fichier…");
     try {
-      await updateExistingXLSX({ file, items, transactions, armoires, history, computeStockFn: computeStock });
-      toast.success("Fichier Excel mis à jour téléchargé.");
+      await updateExistingXLSX({
+        file,
+        items,
+        transactions,
+        armoires,
+        history,
+        computeStockFn: computeStock,
+        onProgress: (msg) => toast.loading(msg, { id: tId }),
+      });
+      toast.success("Fichier Excel mis à jour téléchargé.", { id: tId });
     } catch (e: any) {
-      toast.error("Échec de la mise à jour: " + (e?.message ?? "erreur inconnue"));
+      toast.error("Échec de la mise à jour: " + (e?.message ?? "erreur inconnue"), { id: tId });
     }
   };
 
