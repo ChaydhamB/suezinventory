@@ -179,7 +179,6 @@ self.onmessage = async (ev: MessageEvent<Payload>) => {
 
     post("progress", { message: "Génération du fichier…" });
     const out = await wb.xlsx.writeBuffer();
-    post("done", { buffer: out, fileName }, );
     (self as unknown as Worker).postMessage(
       { type: "done", buffer: out, fileName },
       [out as ArrayBuffer]
