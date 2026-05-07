@@ -224,9 +224,21 @@ self.onmessage = async (ev: MessageEvent<Payload>) => {
     post("progress", { message: "Génération du fichier…" });
     await yieldTick();
     const out = await wb.xlsx.writeBuffer();
+    // Normalize to a true ArrayBuffer so it's transferable across worker boundary
+    let ab: ArrayBuffer;
+    if (out instanceof ArrayBuffer) {
+      ab = out;
+    } else if (ArrayBuffer.isView(out)) {
+      const view = out as ArrayBufferView;
+      ab = view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength) as ArrayBuffer;
+    } else {
+      // Fallback: copy bytes
+      const u8 = new Uint8Array(out as any);
+      ab = u8.buffer.slice(0) as ArrayBuffer;
+    }
     (self as unknown as Worker).postMessage(
-      { type: "done", buffer: out, fileName },
-      [out as ArrayBuffer]
+      { type: "done", buffer: ab, fileName },
+      [ab]
     );
   } catch (err: any) {
     post("error", { message: err?.message || String(err) });
